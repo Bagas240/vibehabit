@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "on-secondary-fixed-variant": "#2b4675",
+          "on-secondary-container": "#385282",
+          "on-primary": "#ffffff",
+          "on-tertiary-fixed-variant": "#324c3d",
+          "inverse-surface": "#2a313c",
+          "inverse-primary": "#adc7ff",
+          "tertiary": "#3c5747",
+          "surface-tint": "#2e5da9",
+          "error-container": "#ffdad6",
+          "secondary": "#445e8f",
+          "tertiary-container": "#54705f",
+          "on-surface-variant": "#434751",
+          "surface-variant": "#dce3f2",
+          "on-error": "#ffffff",
+          "on-secondary-fixed": "#001a40",
+          "surface-bright": "#f9f9ff",
+          "surface-container": "#e7eefd",
+          "surface-dim": "#d3dae9",
+          "surface-container-highest": "#dce3f2",
+          "outline-variant": "#c3c6d3",
+          "tertiary-fixed": "#cbead4",
+          "primary-container": "#3b68b5",
+          "on-background": "#151c27",
+          "surface-container-lowest": "#ffffff",
+          "primary-fixed": "#d8e2ff",
+          "on-surface": "#151c27",
+          "on-error-container": "#93000a",
+          "inverse-on-surface": "#ebf1ff",
+          "background": "#f4f6f9",
+          "surface-container-high": "#e2e8f8",
+          "primary": "#1c4f9b",
+          "on-tertiary-fixed": "#052013",
+          "secondary-fixed": "#d7e2ff",
+          "on-secondary": "#ffffff",
+          "on-tertiary-container": "#d3f2dc",
+          "outline": "#737782",
+          "surface-container-low": "#eff3ff",
+          "primary-fixed-dim": "#adc7ff",
+          "on-primary-fixed-variant": "#084490",
+          "on-tertiary": "#ffffff",
+          "error": "#ba1a1a",
+          "secondary-container": "#adc7fe",
+          "on-primary-fixed": "#001a41",
+          "on-primary-container": "#e3eaff",
+          "surface": "#f4f6f9",
+          "tertiary-fixed-dim": "#afceb9",
+          "secondary-fixed-dim": "#adc7fe",
+          "charcoal-ink": "#1e2530",
+          "dusty-blue": "#3b68b5",
+          "soft-pastel-cell": "#dbe5f7",
+          "card-bg": "#ffffff"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.75rem",
+          "lg": "1.75rem",
+          "xl": "2.5rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "space-sm": "0.5rem",
+          "gutter": "1rem",
+          "space-md": "0.75rem",
+          "space-lg": "1.25rem",
+          "margin": "1.25rem",
+          "space-xl": "2rem",
+          "space-xs": "0.25rem"
+        },
+        "fontFamily": {
+          "headline-xl-mobile": ["Plus Jakarta Sans"],
+          "label-lg": ["Plus Jakarta Sans"],
+          "headline-lg": ["Plus Jakarta Sans"],
+          "body-sm": ["Plus Jakarta Sans"],
+          "label-sm": ["Plus Jakarta Sans"],
+          "headline-xl": ["Plus Jakarta Sans"],
+          "body-md": ["Plus Jakarta Sans"],
+          "headline-sm": ["Plus Jakarta Sans"],
+          "headline-md": ["Plus Jakarta Sans"],
+          "label-md": ["Plus Jakarta Sans"],
+          "body-lg": ["Plus Jakarta Sans"]
+        },
+        "fontSize": {
+          "headline-xl-mobile": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.025em", "fontWeight": "800" }],
+          "label-lg": ["14px", { "lineHeight": "18px", "letterSpacing": "0.01em", "fontWeight": "700" }],
+          "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+          "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+          "label-sm": ["10px", { "lineHeight": "12px", "letterSpacing": "0.05em", "fontWeight": "800" }],
+          "headline-xl": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.03em", "fontWeight": "800" }],
+          "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+          "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "700" }],
+          "headline-md": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.015em", "fontWeight": "700" }],
+          "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "700" }],
+          "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "500" }]
+        }
+      }
+    }
+  };
+</script><style>@layer base{html,body{width:100%;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head><body class="bg-[#f4f6f9] text-[#1e2530] font-body-md text-body-md antialiased min-h-full flex flex-col selection:bg-secondary-fixed"><header class="fixed top-0 w-full z-50 pt-safe bg-[#f4f6f9]/90 backdrop-blur-md border-b border-[#2e3746]/10"><div class="h-16 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm"><img alt="VibeHabit Mascot Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJB_8Lof5kw1b39YE4KM8yLJgOvfELzvu8Yxumkb3mGFY63ZFgGWTbT1GzS0oDq_DAGXPtfDRGDGkPG8zEJlZlb8EzBt63GDlH00t7kpfhEXg5qabotVWimue2e6PyUeR7pjCyaN7ECHSjM1h27gaO3ptSCwGpQjaDMy6bO5yRRl0zGdsTzHWXP4b6uLCjtJfx0KXLVPcp8aNKhG64fDL0ze8iiLUydlBDNOcWuQVEA0PXu5tM5e3EAg"/><div class="flex items-center gap-space-xs"><span class="font-headline-sm text-headline-sm text-[#1e2530] tracking-tight">VibeHabit</span><span class="bg-[#d7e2ff] text-[#2b4675] font-label-sm text-label-sm px-space-xs py-0.5 rounded-full border border-[#1e2530]">PRO</span></div></div><div class="flex items-center gap-space-sm"><span class="font-label-md text-label-md text-[#434751] hidden sm:inline-block">Analytics</span><div class="w-8 h-8 rounded-full bg-[#3b68b5] border border-[#1e2530] flex items-center justify-center text-white"><span class="material-symbols-outlined text-[18px]">person</span></div></div></div></header><main class="flex-1 w-full bg-[#f4f6f9] pt-16 pb-24"><div class="flex flex-col w-full px-margin space-y-gutter pb-space-xl">
+<!-- Top Greeting & Celebration Banner -->
+<div class="relative bg-white rounded-lg p-space-lg shadow-[0_3px_0_#1e2530] border-2 border-[#1e2530] overflow-hidden">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex-1">
+<div class="inline-flex items-center gap-1.5 bg-[#dbe5f7] text-[#1e2530] font-label-sm text-label-sm px-space-sm py-1 rounded-full uppercase tracking-wider mb-space-xs border border-[#1e2530] shadow-[0_1px_0_#1e2530]">
+<span class="material-symbols-outlined text-[14px]">bolt</span>
+          Weekly Wrap
+        </div>
+<h2 class="font-headline-md text-headline-md text-[#1e2530] leading-tight mt-1">
+          Consistency is lowkey insane 📈
+        </h2>
+<p class="font-body-sm text-body-sm text-[#434751] mt-1">
+          You're outpacing 96% of the squad this week.
+        </p>
+</div>
+<!-- Mascot Stamp Illustration -->
+<div class="w-14 h-14 bg-[#3b68b5] rounded-full border-2 border-[#1e2530] flex items-center justify-center shrink-0 shadow-[0_2px_0_#1e2530] rotate-3 hover:rotate-6 transition-transform">
+<span class="material-symbols-outlined text-white text-[32px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<!-- 3-Column Stats Counter -->
+<div class="grid grid-cols-3 gap-space-xs mt-space-md pt-space-md border-t-2 border-[#e2e8f8]">
+<div class="bg-[#f0f4fb] rounded-DEFAULT p-space-sm border-2 border-[#1e2530] text-center shadow-[0_2px_0_#1e2530]">
+<div class="font-headline-md text-headline-md text-[#3b68b5] font-extrabold">92%</div>
+<div class="font-label-sm text-label-sm text-[#434751] uppercase mt-0.5">Success Rate</div>
+</div>
+<div class="bg-[#f0f4fb] rounded-DEFAULT p-space-sm border-2 border-[#1e2530] text-center shadow-[0_2px_0_#1e2530]">
+<div class="font-headline-md text-headline-md text-[#3b68b5] font-extrabold">14d</div>
+<div class="font-label-sm text-label-sm text-[#434751] uppercase mt-0.5">Top Streak 🔥</div>
+</div>
+<div class="bg-[#f0f4fb] rounded-DEFAULT p-space-sm border-2 border-[#1e2530] text-center shadow-[0_2px_0_#1e2530]">
+<div class="font-headline-md text-headline-md text-[#3b68b5] font-extrabold">48</div>
+<div class="font-label-sm text-label-sm text-[#434751] uppercase mt-0.5">Crushed</div>
+</div>
+</div>
+</div>
+<!-- Weekly Activity Heatmap Grid -->
+<div class="bg-white rounded-lg p-space-lg shadow-[0_3px_0_#1e2530] border-2 border-[#1e2530]">
+<div class="flex items-center justify-between mb-space-md">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-[#1e2530]">Weekly Momentum</h3>
+<p class="font-body-sm text-body-sm text-[#434751]">Tap squares to inspect check-ins</p>
+</div>
+<span class="inline-flex items-center gap-1 bg-[#dbe5f7] text-[#1c4f9b] px-space-sm py-1 rounded-full font-label-sm text-label-sm border border-[#1e2530] shadow-[0_1px_0_#1e2530]">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+        4 Perfect Days
+      </span>
+</div>
+<!-- Day Headers -->
+<div class="grid grid-cols-8 gap-1.5 text-center mb-1.5">
+<div class="font-label-sm text-label-sm text-[#434751] text-left">HABIT</div>
+<div class="font-label-sm text-label-sm text-[#434751]">M</div>
+<div class="font-label-sm text-label-sm text-[#434751]">T</div>
+<div class="font-label-sm text-label-sm text-[#434751]">W</div>
+<div class="font-label-sm text-label-sm text-[#434751]">T</div>
+<div class="font-label-sm text-label-sm text-[#434751]">F</div>
+<div class="font-label-sm text-label-sm text-[#434751]">S</div>
+<div class="font-label-sm text-label-sm text-[#434751]">S</div>
+</div>
+<!-- Habit 1: Morning Deep Work -->
+<div class="grid grid-cols-8 gap-1.5 items-center mb-2">
+<div class="font-label-sm text-label-sm text-[#1e2530] truncate font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-[#3b68b5]">edit_note</span>
+        Deep Work
+      </div>
+<div class="h-8 rounded-DEFAULT bg-[#3b68b5] border border-[#1e2530] flex items-center justify-center text-white shadow-[0_1px_0_#1e2530]">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+<div class="h-8 rounded-DEFAULT bg-[#3b68b5] border border-[#1e2530] flex items-center justify-center text-white shadow-[0_1px_0_#1e2530]">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+<div class="h-8 rounded-DEFAULT bg-[#3b68b5] border border-[#1e2530] flex items-center justify-center text-white shadow-[0_1px_0_#1e2530]">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+<div class="h-8 rounded-DEFAULT bg-[#e5ebf5] border border-[#1e2530]/50"></div>
+<div class="h-8 rounded-DEFAULT bg-[#3b68b5] border border-[#1e2530] flex items-center justify-center text-white shadow-[0_1px_0_#1e2530]">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+<div class="h-8 rounded-DEFAULT bg-[#3b68b5] border border-[#1e2530] flex items-center justify-center text-white shadow-[0_1px_0_#1e2530]">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+<div class="h-8 rounded-DEFAULT bg-[#3b68b5] border border-[#1e2530] flex items-center justify-center text-white shadow-[0_1px_0_#1e2530]">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+</div>
+<!-- Habit 2: Daily 3L Water -->
+<div class="grid grid-cols-8 gap-1.5 items-center mb-2">
+<div class="font-label-sm text-label-sm text-[#1e2530] truncate font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-[#3b68b5]">water_drop</span>
+        Hydrate 3L
+      </div>
+<div class="h-8 rounded-DEFAULT bg-[#3b68b5] border border-[#1e2530] flex items-center justify-center text-white shadow-[0_1px_0_#1e2530]">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+<div class="h-8 rounded-DEFAULT bg-[#3b68b5] border border-[#1e2530] flex items-center justify-center text-white shadow-[0_1px_0_#1e2530]">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+<div class="h-8 rounded-DEFAULT bg-[#3b68b5] border border-[#1e2530] flex items-center justify-center text-white shadow-[0_1px_0_#1e2530]">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+<div class="h-8 rounded-DEFAULT bg-[#3b68b5] border border-[#1e2530] flex items-center justify-center text-white shadow-[0_1px_0_#1e2530]">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+<div class="h-8 rounded-DEFAULT bg-[#3b68b5] border border-[#1e2530] flex items-center justify-center text-white shadow-[0_1px_0_#1e2530]">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+<div class="h-8 rounded-DEFAULT bg-[#3b68b5] border border-[#1e2530] flex items-center justify-center text-white shadow-[0_1px_0_#1e2530]">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+<div class="h-8 rounded-DEFAULT bg-[#3b68b5] border border-[#1e2530] flex items-center justify-center text-white shadow-[0_1px_0_#1e2530]">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+</div>
+<!-- Habit 3: Read 20 Pages -->
+<div class="grid grid-cols-8 gap-1.5 items-center">
+<div class="font-label-sm text-label-sm text-[#1e2530] truncate font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-[#3b68b5]">menu_book</span>
+        Read 20p
+      </div>
+<div class="h-8 rounded-DEFAULT bg-[#3b68b5] border border-[#1e2530] flex items-center justify-center text-white shadow-[0_1px_0_#1e2530]">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+<div class="h-8 rounded-DEFAULT bg-[#e5ebf5] border border-[#1e2530]/50"></div>
+<div class="h-8 rounded-DEFAULT bg-[#3b68b5] border border-[#1e2530] flex items-center justify-center text-white shadow-[0_1px_0_#1e2530]">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+<div class="h-8 rounded-DEFAULT bg-[#3b68b5] border border-[#1e2530] flex items-center justify-center text-white shadow-[0_1px_0_#1e2530]">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+<div class="h-8 rounded-DEFAULT bg-[#3b68b5] border border-[#1e2530] flex items-center justify-center text-white shadow-[0_1px_0_#1e2530]">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+<div class="h-8 rounded-DEFAULT bg-[#e5ebf5] border border-[#1e2530]/50"></div>
+<div class="h-8 rounded-DEFAULT bg-[#3b68b5] border border-[#1e2530] flex items-center justify-center text-white shadow-[0_1px_0_#1e2530]">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+</div>
+</div>
+<!-- Category Breakdown Card -->
+<div class="bg-white rounded-lg p-space-lg shadow-[0_3px_0_#1e2530] border-2 border-[#1e2530] space-y-space-md">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-sm text-headline-sm text-[#1e2530]">Category Mastery</h3>
+<span class="font-label-md text-label-md text-[#3b68b5] font-bold">Top 5%</span>
+</div>
+<!-- Bar 1 -->
+<div class="space-y-1">
+<div class="flex justify-between items-center font-label-md text-label-md">
+<span class="flex items-center gap-1.5 text-[#1e2530]">
+<span class="material-symbols-outlined text-[16px] text-[#3b68b5]">psychology</span>
+          Mind &amp; Study
+        </span>
+<span class="text-[#3b68b5] font-extrabold">95%</span>
+</div>
+<div class="w-full h-3.5 bg-[#e5ebf5] rounded-full border border-[#1e2530] overflow-hidden p-0.5">
+<div class="h-full bg-[#3b68b5] rounded-full" style="width: 95%;"></div>
+</div>
+</div>
+<!-- Bar 2 -->
+<div class="space-y-1">
+<div class="flex justify-between items-center font-label-md text-label-md">
+<span class="flex items-center gap-1.5 text-[#1e2530]">
+<span class="material-symbols-outlined text-[16px] text-[#3b68b5]">fitness_center</span>
+          Fitness &amp; Movement
+        </span>
+<span class="text-[#3b68b5] font-extrabold">88%</span>
+</div>
+<div class="w-full h-3.5 bg-[#e5ebf5] rounded-full border border-[#1e2530] overflow-hidden p-0.5">
+<div class="h-full bg-[#3b68b5] rounded-full" style="width: 88%;"></div>
+</div>
+</div>
+<!-- Bar 3 -->
+<div class="space-y-1">
+<div class="flex justify-between items-center font-label-md text-label-md">
+<span class="flex items-center gap-1.5 text-[#1e2530]">
+<span class="material-symbols-outlined text-[16px] text-[#3b68b5]">spa</span>
+          Wellness &amp; Sleep
+        </span>
+<span class="text-[#3b68b5] font-extrabold">80%</span>
+</div>
+<div class="w-full h-3.5 bg-[#e5ebf5] rounded-full border border-[#1e2530] overflow-hidden p-0.5">
+<div class="h-full bg-[#3b68b5] rounded-full" style="width: 80%;"></div>
+</div>
+</div>
+</div>
+<!-- Cartoon Badge Showcase -->
+<div class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<h3 class="font-headline-sm text-headline-sm text-[#1e2530]">Trophy Vault</h3>
+<span class="bg-[#3b68b5] text-white font-label-sm text-label-sm px-2 py-0.5 rounded-full border border-[#1e2530]">3 NEW</span>
+</div>
+<button class="font-label-md text-label-md text-[#3b68b5] font-bold hover:underline">View All 16</button>
+</div>
+<!-- 2x2 Badge Grid -->
+<div class="grid grid-cols-2 gap-space-sm">
+<!-- Badge 1: Early Bird -->
+<div class="bg-white rounded-lg p-space-md border-2 border-[#1e2530] shadow-[0_3px_0_#1e2530] flex flex-col justify-between relative group hover:-translate-y-0.5 transition-transform">
+<div class="w-12 h-12 rounded-full bg-[#dbe5f7] border-2 border-[#1e2530] flex items-center justify-center mb-space-sm shadow-[0_2px_0_#1e2530]">
+<span class="material-symbols-outlined text-[#3b68b5] text-[28px]" style="font-variation-settings: 'FILL' 1;">wb_twilight</span>
+</div>
+<div class="absolute top-2 right-2 rotate-6">
+<span class="bg-[#3b68b5] text-white font-label-sm text-label-sm px-1.5 py-0.5 rounded border border-[#1e2530]">UNLOCKED</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-[#1e2530] text-[15px] leading-tight font-extrabold">Early Bird No Cap 🌅</h4>
+<p class="font-body-sm text-body-sm text-[#434751] mt-1">Up pre-7AM 5 times this week.</p>
+</div>
+</div>
+<!-- Badge 2: Hydration Overlord -->
+<div class="bg-white rounded-lg p-space-md border-2 border-[#1e2530] shadow-[0_3px_0_#1e2530] flex flex-col justify-between relative group hover:-translate-y-0.5 transition-transform">
+<div class="w-12 h-12 rounded-full bg-[#3b68b5] border-2 border-[#1e2530] flex items-center justify-center mb-space-sm shadow-[0_2px_0_#1e2530]">
+<span class="material-symbols-outlined text-white text-[28px]" style="font-variation-settings: 'FILL' 1;">water_drop</span>
+</div>
+<div class="absolute top-2 right-2 -rotate-3">
+<span class="bg-[#3b68b5] text-white font-label-sm text-label-sm px-1.5 py-0.5 rounded border border-[#1e2530]">UNLOCKED</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-[#1e2530] text-[15px] leading-tight font-extrabold">Hydration Overlord 🌊</h4>
+<p class="font-body-sm text-body-sm text-[#434751] mt-1">Met daily water goal 7d straight.</p>
+</div>
+</div>
+<!-- Badge 3: Lock In Master -->
+<div class="bg-white rounded-lg p-space-md border-2 border-[#1e2530] shadow-[0_3px_0_#1e2530] flex flex-col justify-between relative group hover:-translate-y-0.5 transition-transform">
+<div class="w-12 h-12 rounded-full bg-[#dbe5f7] border-2 border-[#1e2530] flex items-center justify-center mb-space-sm shadow-[0_2px_0_#1e2530]">
+<span class="material-symbols-outlined text-[#3b68b5] text-[28px]" style="font-variation-settings: 'FILL' 1;">lock</span>
+</div>
+<div class="absolute top-2 right-2 rotate-2">
+<span class="bg-[#3b68b5] text-white font-label-sm text-label-sm px-1.5 py-0.5 rounded border border-[#1e2530]">UNLOCKED</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-[#1e2530] text-[15px] leading-tight font-extrabold">Lock In Master 🔒</h4>
+<p class="font-body-sm text-body-sm text-[#434751] mt-1">100% completion 3 days in a row.</p>
+</div>
+</div>
+<!-- Badge 4: Zen Beast (Locked / Progressing) -->
+<div class="bg-[#f0f4fb] rounded-lg p-space-md border-2 border-[#1e2530] shadow-[0_3px_0_#1e2530] flex flex-col justify-between relative opacity-95">
+<div class="w-12 h-12 rounded-full bg-[#e5ebf5] border-2 border-[#1e2530] flex items-center justify-center mb-space-sm">
+<span class="material-symbols-outlined text-[#445e8f] text-[26px]">self_improvement</span>
+</div>
+<div class="absolute top-2 right-2">
+<span class="bg-white text-[#434751] font-label-sm text-label-sm px-1.5 py-0.5 rounded border border-[#1e2530]">70%</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-[#1e2530] text-[15px] leading-tight font-extrabold">Zen Beast 🧘</h4>
+<p class="font-body-sm text-body-sm text-[#434751] mt-1">Meditate 10 mins (4/7 sessions).</p>
+<div class="w-full h-2 bg-[#dce3f2] rounded-full border border-[#1e2530] mt-2 overflow-hidden">
+<div class="h-full bg-[#3b68b5]" style="width: 70%;"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Weekly AI Vibe Insight Pill Box -->
+<div class="bg-[#dbe5f7] rounded-lg p-space-lg border-2 border-[#1e2530] shadow-[0_3px_0_#1e2530] relative overflow-hidden">
+<div class="flex items-start gap-space-md">
+<div class="w-12 h-12 bg-white rounded-full border-2 border-[#1e2530] flex items-center justify-center shrink-0 shadow-[0_2px_0_#1e2530]">
+<span class="material-symbols-outlined text-[#3b68b5] text-[28px]">psychology_alt</span>
+</div>
+<div class="space-y-1">
+<div class="inline-block bg-[#3b68b5] text-white font-label-sm text-label-sm px-2 py-0.5 rounded-full border border-[#1e2530]">
+          COACH VIBE AI
+        </div>
+<p class="font-headline-sm text-headline-sm text-[#1e2530] text-[16px] leading-snug">
+          "You crush habits 3x better before noon. Lock that morning momentum in tomorrow!"
+        </p>
+</div>
+</div>
+</div>
+<!-- Primary Interactive Footer Action -->
+<button class="w-full py-space-md px-space-lg rounded-full bg-[#3b68b5] text-white font-headline-sm text-headline-sm border-2 border-[#1e2530] shadow-[0_4px_0_#1e2530] active:translate-y-[3px] active:shadow-[0_1px_0_#1e2530] transition-all flex items-center justify-center gap-space-sm cursor-pointer hover:bg-[#325ca6]" id="shareVibeBtn">
+<span class="material-symbols-outlined text-[22px]">ios_share</span>
+    Share Vibe Recap
+  </button>
+</div>
+<script>
+  // Simple interactive feedback for micro-delight
+  document.getElementById('shareVibeBtn')?.addEventListener('click', function() {
+    const btn = this;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = `<span class="material-symbols-outlined text-[22px]">done_all</span> Copied to Clipboard! 🎉`;
+    btn.classList.add('bg-[#1c4f9b]');
+    setTimeout(() => {
+      btn.innerHTML = originalText;
+      btn.classList.remove('bg-[#1c4f9b]');
+    }, 2000);
+  });
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-[#f4f6f9]/90 backdrop-blur-md border-t border-[#2e3746]/10" data-active-classes="text-[#3b68b5] font-bold"><div class="h-20 max-w-md mx-auto px-margin flex items-center justify-between"><a class="flex flex-col items-center justify-center min-w-[44px] min-h-[44px] px-space-sm py-space-xs rounded-full text-[#434751] hover:text-[#1e2530] transition-colors" data-path="today" href="#"><span class="material-symbols-outlined text-[24px]">hotel_class</span><span class="font-label-sm text-label-sm mt-space-xs">Today</span></a><a aria-current="page" class="flex flex-col items-center justify-center min-w-[44px] min-h-[44px] px-space-sm py-space-xs rounded-full transition-colors text-[#3b68b5] font-bold" data-path="analytics" href="#"><span class="material-symbols-outlined text-[24px]">auto_graph</span><span class="font-label-sm text-label-sm mt-space-xs">Analytics</span></a><div class="flex items-center justify-center -mt-space-md"><a class="flex items-center justify-center w-12 h-12 rounded-full bg-[#3b68b5] text-white border-2 border-[#1e2530] shadow-[0_2px_0_#1e2530] hover:bg-[#325ca6] transition-transform active:scale-95" data-path="add-habit" href="#"><span class="material-symbols-outlined text-[28px]">add</span></a></div><a class="flex flex-col items-center justify-center min-w-[44px] min-h-[44px] px-space-sm py-space-xs rounded-full text-[#434751] hover:text-[#1e2530] transition-colors" data-path="squad" href="#"><span class="material-symbols-outlined text-[24px]">groups</span><span class="font-label-sm text-label-sm mt-space-xs">Squad</span></a><a class="flex flex-col items-center justify-center min-w-[44px] min-h-[44px] px-space-sm py-space-xs rounded-full text-[#434751] hover:text-[#1e2530] transition-colors" data-path="profile" href="#"><span class="material-symbols-outlined text-[24px]">mood</span><span class="font-label-sm text-label-sm mt-space-xs">You</span></a></div></nav></body></html>
