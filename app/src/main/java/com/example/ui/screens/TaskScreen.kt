@@ -125,7 +125,7 @@ fun TaskScreen(
                   .padding(horizontal = 8.dp, vertical = 2.dp)
               ) {
                 Text(
-                  text = if (isStreakActive) "🔥 STREAK TASK AKTIF" else "❄️ STREAK DORMANT",
+                  text = if (isStreakActive) "STREAK TASK AKTIF" else "STREAK DORMANT",
                   style = MaterialTheme.typography.labelSmall,
                   fontWeight = FontWeight.ExtraBold,
                   color = CharcoalInk
@@ -135,7 +135,7 @@ fun TaskScreen(
               Spacer(modifier = Modifier.height(6.dp))
 
               Text(
-                text = "Streak Tasks 🔥",
+                text = "Streak Tasks",
                 style = MaterialTheme.typography.headlineMedium,
                 color = CharcoalInk,
                 fontWeight = FontWeight.ExtraBold
@@ -160,7 +160,7 @@ fun TaskScreen(
               onClick = {
                 if (!isStreakActive) {
                   viewModel.igniteStreak()
-                  Toast.makeText(context, "Api streak tugas menyala! 🔥", Toast.LENGTH_SHORT).show()
+                  Toast.makeText(context, "Api streak tugas menyala!", Toast.LENGTH_SHORT).show()
                 }
               }
             )
@@ -200,7 +200,7 @@ fun TaskScreen(
               fontWeight = FontWeight.Bold
             )
             Text(
-              text = if (completedCount == totalCount && totalCount > 0) "Tuntas Semua! 🚀" else "${totalCount - completedCount} tersisa",
+              text = if (completedCount == totalCount && totalCount > 0) "Tuntas Semua!" else "${totalCount - completedCount} tersisa",
               style = MaterialTheme.typography.labelSmall,
               color = CharcoalInk,
               fontWeight = FontWeight.Bold
@@ -258,11 +258,11 @@ fun TaskScreen(
                   category = "Priority",
                   isCompleted = false,
                   timeEstimate = "20m",
-                  emoji = "🎯"
+                  emoji = ""
                 )
                 viewModel.addTask(newTask)
                 newTaskText = ""
-                Toast.makeText(context, "Tugas ditambahkan! 🎯", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Tugas ditambahkan!", Toast.LENGTH_SHORT).show()
               }
             },
             colors = ButtonDefaults.buttonColors(
@@ -305,15 +305,8 @@ fun TaskScreen(
                 .padding(horizontal = 12.dp, vertical = 6.dp),
               contentAlignment = Alignment.Center
             ) {
-              val emoji = when (filter) {
-                "Priority" -> "🎯 "
-                "Belajar" -> "📚 "
-                "Quick Win" -> "⚡ "
-                "Routine" -> "🧹 "
-                else -> "📋 "
-              }
               Text(
-                text = "$emoji$filter",
+                text = filter,
                 style = MaterialTheme.typography.labelMedium,
                 color = if (isSelected) Color.White else CharcoalInk,
                 fontWeight = FontWeight.Bold
@@ -358,7 +351,12 @@ fun TaskScreen(
               .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
           ) {
-            Text(text = "📝", fontSize = 32.sp)
+            Icon(
+              imageVector = Icons.Default.Check,
+              contentDescription = null,
+              tint = InkSubtle,
+              modifier = Modifier.size(36.dp)
+            )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
               text = "Belum ada tugas di kategori ini!",
@@ -380,7 +378,7 @@ fun TaskScreen(
           task = task,
           onToggle = {
             viewModel.toggleTask(task.id)
-            val msg = if (!task.isCompleted) "Tugas selesai! Api streak menyala! 🔥" else "Tugas dibatalkan"
+            val msg = if (!task.isCompleted) "Tugas selesai! Api streak menyala!" else "Tugas dibatalkan"
             Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
           },
           onDelete = {
@@ -456,23 +454,17 @@ fun TaskScreen(
         Button(
           onClick = {
             if (title.isNotBlank()) {
-              val emoji = when (category) {
-                "Priority" -> "🎯"
-                "Belajar" -> "📚"
-                "Quick Win" -> "⚡"
-                else -> "🧹"
-              }
               val newTask = DailyTask(
                 id = UUID.randomUUID().toString(),
                 title = title.trim(),
                 category = category,
                 isCompleted = false,
                 timeEstimate = timeEstimate.ifBlank { "20m" },
-                emoji = emoji
+                emoji = ""
               )
               viewModel.addTask(newTask)
               showAddTaskDialog = false
-              Toast.makeText(context, "Tugas berhasil ditambahkan! 🎯", Toast.LENGTH_SHORT).show()
+              Toast.makeText(context, "Tugas berhasil ditambahkan!", Toast.LENGTH_SHORT).show()
             }
           },
           colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)
@@ -569,7 +561,7 @@ private fun TaskItemCard(
                 .padding(horizontal = 6.dp, vertical = 1.dp)
             ) {
               Text(
-                text = "${task.emoji} ${task.category}",
+                text = task.category,
                 style = MaterialTheme.typography.labelSmall,
                 color = CharcoalInk,
                 fontWeight = FontWeight.Bold
@@ -578,7 +570,7 @@ private fun TaskItemCard(
 
             // Estimate badge
             Text(
-              text = "⏱ ${task.timeEstimate}",
+              text = task.timeEstimate,
               style = MaterialTheme.typography.labelSmall,
               color = InkSubtle
             )

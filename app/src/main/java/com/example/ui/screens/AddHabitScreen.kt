@@ -78,7 +78,7 @@ fun AddHabitScreen(
   val context = LocalContext.current
   val coroutineScope = rememberCoroutineScope()
 
-  var habitTitle by remember { mutableStateOf("Membaca 20 halaman buku 📖") }
+  var habitTitle by remember { mutableStateOf("Membaca 20 halaman buku") }
   var selectedCategory by remember { mutableStateOf(HabitCategory.MIND) }
   var frequencyType by remember { mutableStateOf(FrequencyType.DAILY) }
   val activeDays = remember { mutableStateListOf(0, 1, 2, 3, 4, 5, 6) }
@@ -125,7 +125,7 @@ fun AddHabitScreen(
           Spacer(modifier = Modifier.height(6.dp))
 
           Text(
-            text = "Kunci Kebiasaan Positif 🌱",
+            text = "Kunci Kebiasaan Positif",
             style = MaterialTheme.typography.headlineMedium,
             color = CharcoalInk,
             fontWeight = FontWeight.Bold
@@ -246,8 +246,6 @@ fun AddHabitScreen(
             contentAlignment = Alignment.Center
           ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-              Text(text = category.emoji, fontSize = 14.sp)
-              Spacer(modifier = Modifier.width(6.dp))
               Text(
                 text = category.displayName,
                 style = MaterialTheme.typography.labelMedium,
@@ -545,7 +543,7 @@ fun AddHabitScreen(
         .padding(top = 4.dp),
       verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-      val buttonText = if (isLockedInCelebration) "HABIT TERSIMPAN! 🔥" else "Kunci Habit Ini 🚀"
+      val buttonText = if (isLockedInCelebration) "HABIT TERSIMPAN!" else "Kunci Habit Ini"
       val buttonColor by animateColorAsState(
         targetValue = if (isLockedInCelebration) DeepPrimary else PrimaryBlue,
         label = "lockinColor"
@@ -571,13 +569,13 @@ fun AddHabitScreen(
             currentCount = 0,
             unit = goalUnit,
             isCompletedToday = false,
-            streakDays = 1,
+            streakDays = 0,
             weekMomentum = listOf(false, false, false, false, false, false, false)
           )
 
           viewModel.addHabit(newHabit)
           isLockedInCelebration = true
-          Toast.makeText(context, "Habit berhasil disimpan! Api streak aktif! 🚀", Toast.LENGTH_SHORT).show()
+          Toast.makeText(context, "Habit berhasil disimpan! Api streak aktif!", Toast.LENGTH_SHORT).show()
 
           coroutineScope.launch {
             delay(1000)

@@ -201,15 +201,15 @@ fun OnboardingNameScreen(
         }
       }
 
-      // Primary Chunky CTA Button ("Start My Journey 🚀")
+      // Primary Chunky CTA Button ("Start My Journey")
       VibeButton(
-        text = "Start My Journey 🚀",
+        text = "Start My Journey",
         onClick = {
           if (userNameInput.trim().isEmpty()) {
             Toast.makeText(context, "Silakan masukkan namamu untuk memulai!", Toast.LENGTH_SHORT).show()
           } else {
             viewModel.completeOnboarding(userNameInput.trim())
-            Toast.makeText(context, "Selamat datang, ${userNameInput.trim()}! 🎉", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Selamat datang, ${userNameInput.trim()}!", Toast.LENGTH_SHORT).show()
           }
         },
         modifier = Modifier

@@ -5,12 +5,12 @@ enum class HabitCategory(
   val shortLabel: String,
   val emoji: String
 ) {
-  MIND("Mind & Study", "Mind", "🧠"),
-  FITNESS("Fitness & Movement", "Fitness", "💪"),
-  HEALTH("Health", "Health", "💧"),
-  GLOW_UP("Glow Up", "Glow Up", "✨"),
-  DETOX("Digital Detox", "Detox", "📵"),
-  WELLNESS("Wellness & Sleep", "Wellness", "🌱")
+  MIND("Mind & Study", "Mind", ""),
+  FITNESS("Fitness & Movement", "Fitness", ""),
+  HEALTH("Health", "Health", ""),
+  GLOW_UP("Glow Up", "Glow Up", ""),
+  DETOX("Digital Detox", "Detox", ""),
+  WELLNESS("Wellness & Sleep", "Wellness", "")
 }
 
 enum class FrequencyType(val label: String) {
@@ -23,8 +23,8 @@ enum class NotificationPersona(
   val title: String,
   val quote: String
 ) {
-  HYPE("Bestie Hype ⚡", "\"Lock in! Don't let your streak slip!\""),
-  WHISPER("Gentle Whisper 🍃", "\"Take your time, breathe and reset.\"")
+  HYPE("Bestie Hype", "\"Fokus dan jaga konsistensi streak-mu.\""),
+  WHISPER("Gentle Whisper", "\"Ambil waktumu sejenak, bernapas dan mulai kembali.\"")
 }
 
 data class Habit(
@@ -39,11 +39,11 @@ data class Habit(
   val currentCount: Int = 0,
   val unit: String = "Times",
   val isCompletedToday: Boolean = false,
-  val streakDays: Int = 1,
+  val streakDays: Int = 0,
   val isPaused: Boolean = false,
   val isArchived: Boolean = false,
   val statusNote: String? = null,
-  val weekMomentum: List<Boolean> = listOf(true, true, true, false, true, true, true)
+  val weekMomentum: List<Boolean> = listOf(false, false, false, false, false, false, false)
 )
 
 data class Trophy(
@@ -59,8 +59,8 @@ data class Trophy(
 data class UserProfile(
   val name: String = "Champion",
   val handle: String = "@champion",
-  val titleBadge: String = "New Starter ⭐",
-  val bio: String = "Building atomic habits one day at a time 🌱",
+  val titleBadge: String = "New Starter",
+  val bio: String = "Building atomic habits one day at a time",
   val level: Int = 1,
   val avatarUrl: String = "https://lh3.googleusercontent.com/aida-public/AB6AXuDhcHUiuxI958oEC27g3WAVrrQbyiLrPAjHpTA6PsaNC9M9r0V8CWJLgc7tHm8lA2hOx0vVHVgOdMbJ9j8mLzof_P__l8j5B-Zs14L34vA_U-dAiwoTH7lA5AKpKD2TfAV_iQr8orO8P1A8BF2z0GVofr0tsRfc_NVoEm6GrAOYDgwV8jyakpg_-eILg_mTIzvoHA4f-nmod9p6N30N8R1x5LtcWR1Nasi4Ib6BQqd3khkUPHU6oAuApw",
   val habitsCrushed: Int = 0,
@@ -80,6 +80,6 @@ data class DailyTask(
   val category: String = "Priority", // "Priority", "Quick Win", "Routine", "Belajar"
   val isCompleted: Boolean = false,
   val timeEstimate: String = "15m",
-  val emoji: String = "⚡",
+  val emoji: String = "",
   val completedAt: Long? = null
 )

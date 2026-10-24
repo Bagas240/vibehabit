@@ -129,7 +129,7 @@ fun SplashScreen(
           .padding(horizontal = 14.dp, vertical = 4.dp)
       ) {
         Text(
-          text = "Building atomic habits one day at a time 🌿",
+          text = "Building atomic habits one day at a time",
           style = MaterialTheme.typography.bodySmall,
           color = DeepPrimary,
           fontWeight = FontWeight.Bold

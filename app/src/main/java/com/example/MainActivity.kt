@@ -275,7 +275,7 @@ fun VibeHabitApp(
               Icon(Icons.Default.Eco, contentDescription = null, tint = Color.White, modifier = Modifier.size(24.dp))
             }
             Column {
-              Text("Habit Baru 🌱", fontWeight = FontWeight.Bold, color = CharcoalInk, fontSize = 15.sp)
+              Text("Habit Baru", fontWeight = FontWeight.Bold, color = CharcoalInk, fontSize = 15.sp)
               Text("Bangun kebiasaan harian & rutinitas", style = MaterialTheme.typography.bodySmall, color = InkSubtle)
             }
           }
@@ -305,7 +305,7 @@ fun VibeHabitApp(
               Icon(Icons.Default.Checklist, contentDescription = null, tint = Color.White, modifier = Modifier.size(24.dp))
             }
             Column {
-              Text("Task Baru ⚡", fontWeight = FontWeight.Bold, color = CharcoalInk, fontSize = 15.sp)
+              Text("Task Baru", fontWeight = FontWeight.Bold, color = CharcoalInk, fontSize = 15.sp)
               Text("Catat tugas cepat (PR, belajar, dll)", style = MaterialTheme.typography.bodySmall, color = InkSubtle)
             }
           }
@@ -378,23 +378,17 @@ fun VibeHabitApp(
         Button(
           onClick = {
             if (taskTitle.isNotBlank()) {
-              val emoji = when (taskCategory) {
-                "Priority" -> "🎯"
-                "Belajar" -> "📚"
-                "Quick Win" -> "⚡"
-                else -> "🧹"
-              }
               val newTask = DailyTask(
                 id = UUID.randomUUID().toString(),
                 title = taskTitle.trim(),
                 category = taskCategory,
                 isCompleted = false,
                 timeEstimate = taskTime.ifBlank { "20m" },
-                emoji = emoji
+                emoji = ""
               )
               viewModel.addTask(newTask)
               showAddTaskDialog = false
-              Toast.makeText(context, "Tugas berhasil ditambahkan! 🎯", Toast.LENGTH_SHORT).show()
+              Toast.makeText(context, "Tugas berhasil ditambahkan!", Toast.LENGTH_SHORT).show()
             }
           },
           colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)

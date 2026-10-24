@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Lightbulb
@@ -135,7 +136,7 @@ fun AnalyticsScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-              text = if (habits.isEmpty()) "Mulai perjalananmu hari ini! 🚀" else "Konsistensi terus meningkat! 📈",
+              text = if (habits.isEmpty()) "Mulai perjalananmu hari ini!" else "Konsistensi terus meningkat!",
               style = MaterialTheme.typography.headlineMedium,
               color = CharcoalInk,
               fontWeight = FontWeight.Bold,
@@ -181,7 +182,7 @@ fun AnalyticsScreen(
 
           StatCard(
             value = "${masterStreak}d",
-            label = "API STREAK 🔥",
+            label = "API STREAK",
             modifier = Modifier.weight(1f)
           )
 
@@ -216,14 +217,14 @@ fun AnalyticsScreen(
               fontWeight = FontWeight.Bold
             )
             Text(
-              text = "Ketuk kotak untuk menandai check-in",
+              text = if (habits.isEmpty()) "Matriks momentum harian" else "Ketuk kotak untuk menandai check-in",
               style = MaterialTheme.typography.bodySmall,
               color = InkSubtle
             )
           }
 
           VibePillBadge(
-            text = "Aktif",
+            text = if (habits.isEmpty()) "0 Habit" else "${habits.size} Habit",
             backgroundColor = SoftPastelCell,
             textColor = DeepPrimary,
             icon = {
@@ -234,54 +235,73 @@ fun AnalyticsScreen(
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // Day Headers: HABIT | S | S | R | K | J | S | M
-        val days = listOf("S", "S", "R", "K", "J", "S", "M")
-        Row(
-          modifier = Modifier.fillMaxWidth(),
-          verticalAlignment = Alignment.CenterVertically
-        ) {
-          Text(
-            text = "HABIT",
-            style = MaterialTheme.typography.labelSmall,
-            color = InkSubtle,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.width(82.dp)
-          )
-          days.forEach { day ->
-            Box(
-              modifier = Modifier.weight(1f),
-              contentAlignment = Alignment.Center
-            ) {
-              Text(
-                text = day,
-                style = MaterialTheme.typography.labelSmall,
-                color = InkSubtle,
-                fontWeight = FontWeight.Bold
-              )
-            }
-          }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
         if (habits.isEmpty()) {
           Box(
             modifier = Modifier
               .fillMaxWidth()
-              .padding(vertical = 12.dp),
+              .clip(RoundedCornerShape(12.dp))
+              .background(SurfaceContainerLow)
+              .border(1.dp, CharcoalInk.copy(alpha = 0.15f), RoundedCornerShape(12.dp))
+              .padding(20.dp),
             contentAlignment = Alignment.Center
           ) {
-            Text(
-              text = "Belum ada habit aktif. Tambahkan habit di tab Today untuk mulai melacak!",
-              style = MaterialTheme.typography.bodySmall,
-              color = InkSubtle,
-              textAlign = androidx.compose.ui.text.style.TextAlign.Center
-            )
+            Column(
+              horizontalAlignment = Alignment.CenterHorizontally,
+              verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+              Icon(
+                imageVector = Icons.Default.Checklist,
+                contentDescription = null,
+                tint = PrimaryBlue,
+                modifier = Modifier.size(36.dp)
+              )
+              Text(
+                text = "Belum Ada Riwayat Check-In",
+                style = MaterialTheme.typography.titleMedium,
+                color = CharcoalInk,
+                fontWeight = FontWeight.Bold
+              )
+              Text(
+                text = "Riwayat 7 hari mencatat konsistensi harian setiap kebiasaan. Tambahkan habit pertamamu di menu Today untuk mulai mencatat check-in.",
+                style = MaterialTheme.typography.bodySmall,
+                color = InkSubtle,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+              )
+            }
           }
         } else {
+          // Day Headers: HABIT | S | S | R | K | J | S | M
+          val days = listOf("S", "S", "R", "K", "J", "S", "M")
+          Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+          ) {
+            Text(
+              text = "HABIT",
+              style = MaterialTheme.typography.labelSmall,
+              color = InkSubtle,
+              fontWeight = FontWeight.Bold,
+              modifier = Modifier.width(82.dp)
+            )
+            days.forEach { day ->
+              Box(
+                modifier = Modifier.weight(1f),
+                contentAlignment = Alignment.Center
+              ) {
+                Text(
+                  text = day,
+                  style = MaterialTheme.typography.labelSmall,
+                  color = InkSubtle,
+                  fontWeight = FontWeight.Bold
+                )
+              }
+            }
+          }
+
+          Spacer(modifier = Modifier.height(8.dp))
+
           habits.take(5).forEach { habit ->
             val label = habit.title
-            val emoji = habit.category.emoji
 
             Row(
               modifier = Modifier
@@ -293,8 +313,13 @@ fun AnalyticsScreen(
                 modifier = Modifier.width(82.dp),
                 verticalAlignment = Alignment.CenterVertically
               ) {
-                Text(text = emoji, fontSize = 12.sp)
-                Spacer(modifier = Modifier.width(3.dp))
+                Box(
+                  modifier = Modifier
+                    .size(8.dp)
+                    .clip(CircleShape)
+                    .background(PrimaryBlue)
+                )
+                Spacer(modifier = Modifier.width(5.dp))
                 Text(
                   text = label,
                   style = MaterialTheme.typography.labelSmall,
@@ -343,21 +368,7 @@ fun AnalyticsScreen(
       }
     }
 
-    // 3. Category Breakdown Card
-    val studyHabits = habits.filter { it.category == HabitCategory.MIND || it.category == HabitCategory.GLOW_UP }
-    val fitnessHabits = habits.filter { it.category == HabitCategory.FITNESS }
-    val wellnessHabits = habits.filter { it.category == HabitCategory.WELLNESS || it.category == HabitCategory.HEALTH || it.category == HabitCategory.DETOX }
-
-    fun calcPct(list: List<Habit>): Int {
-      if (list.isEmpty()) return 0
-      val totalDays = list.size * 7
-      val checkedDays = list.sumOf { it.weekMomentum.count { c -> c } }
-      return ((checkedDays.toFloat() / totalDays) * 100).toInt()
-    }
-
-    val studyPct = calcPct(studyHabits)
-    val fitnessPct = calcPct(fitnessHabits)
-    val wellnessPct = calcPct(wellnessHabits)
+    // 3. Category Breakdown Card (Kategori Dominan)
     val totalChecked = habits.sumOf { it.weekMomentum.count { c -> c } }
 
     VibeStickerBox(
@@ -371,28 +382,125 @@ fun AnalyticsScreen(
         modifier = Modifier.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
       ) {
-        Row(
-          modifier = Modifier.fillMaxWidth(),
-          horizontalArrangement = Arrangement.SpaceBetween,
-          verticalAlignment = Alignment.CenterVertically
-        ) {
-          Text(
-            text = "Kategori Dominan",
-            style = MaterialTheme.typography.headlineSmall,
-            color = CharcoalInk,
-            fontWeight = FontWeight.Bold
-          )
-          Text(
-            text = if (habits.isEmpty()) "Mulai Sekarang" else "$totalChecked Selesai",
-            style = MaterialTheme.typography.labelMedium,
-            color = PrimaryBlue,
-            fontWeight = FontWeight.ExtraBold
-          )
-        }
+        if (habits.isEmpty()) {
+          Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+          ) {
+            Column {
+              Text(
+                text = "Kategori Dominan",
+                style = MaterialTheme.typography.headlineSmall,
+                color = CharcoalInk,
+                fontWeight = FontWeight.Bold
+              )
+              Text(
+                text = "Fokus kebiasaan utama mingguan",
+                style = MaterialTheme.typography.bodySmall,
+                color = InkSubtle
+              )
+            }
+            VibePillBadge(
+              text = "Belum Ada Data",
+              backgroundColor = SoftPastelCell,
+              textColor = CharcoalInk
+            )
+          }
 
-        CategoryMasteryBar(title = "Mind & Study", percentage = studyPct, icon = Icons.Default.Psychology)
-        CategoryMasteryBar(title = "Fitness & Movement", percentage = fitnessPct, icon = Icons.Default.FitnessCenter)
-        CategoryMasteryBar(title = "Wellness & Sleep", percentage = wellnessPct, icon = Icons.Default.Spa)
+          Box(
+            modifier = Modifier
+              .fillMaxWidth()
+              .clip(RoundedCornerShape(12.dp))
+              .background(SurfaceContainerLow)
+              .border(1.dp, CharcoalInk.copy(alpha = 0.15f), RoundedCornerShape(12.dp))
+              .padding(20.dp),
+            contentAlignment = Alignment.Center
+          ) {
+            Column(
+              horizontalAlignment = Alignment.CenterHorizontally,
+              verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+              Icon(
+                imageVector = Icons.Default.Psychology,
+                contentDescription = null,
+                tint = PrimaryBlue,
+                modifier = Modifier.size(36.dp)
+              )
+              Text(
+                text = "Belum Ada Analisis Kategori",
+                style = MaterialTheme.typography.titleMedium,
+                color = CharcoalInk,
+                fontWeight = FontWeight.Bold
+              )
+              Text(
+                text = "Kategori dominan mengukur kategori apa (Mind, Fitness, Health, dll.) yang paling sering kamu selesaikan. Tambahkan habit untuk melihat distribusi dan kategori dominanmu.",
+                style = MaterialTheme.typography.bodySmall,
+                color = InkSubtle,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+              )
+            }
+          }
+        } else {
+          // Dynamic category calculation from real habits
+          val categoriesPresent = habits.map { it.category }.distinct()
+          val categoryStats = categoriesPresent.map { cat ->
+            val catHabits = habits.filter { it.category == cat }
+            val totalDays = catHabits.size * 7
+            val checkedDays = catHabits.sumOf { it.weekMomentum.count { c -> c } }
+            val pct = if (totalDays > 0) ((checkedDays.toFloat() / totalDays) * 100).toInt() else 0
+            Triple(cat, catHabits.size, pct)
+          }.sortedByDescending { it.third }
+
+          val dominantCategory = categoryStats.firstOrNull { it.third > 0 }?.first
+
+          Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+          ) {
+            Column {
+              Text(
+                text = "Kategori Dominan",
+                style = MaterialTheme.typography.headlineSmall,
+                color = CharcoalInk,
+                fontWeight = FontWeight.Bold
+              )
+              val dominantText = if (dominantCategory != null) {
+                "Fokus Utama: ${dominantCategory.displayName}"
+              } else {
+                "Selesaikan check-in untuk menentukan kategori utama"
+              }
+              Text(
+                text = dominantText,
+                style = MaterialTheme.typography.bodySmall,
+                color = InkSubtle
+              )
+            }
+            Text(
+              text = "$totalChecked Selesai",
+              style = MaterialTheme.typography.labelMedium,
+              color = PrimaryBlue,
+              fontWeight = FontWeight.ExtraBold
+            )
+          }
+
+          categoryStats.forEach { (cat, habitCount, pct) ->
+            val icon = when (cat) {
+              HabitCategory.MIND -> Icons.Default.Psychology
+              HabitCategory.FITNESS -> Icons.Default.FitnessCenter
+              HabitCategory.HEALTH -> Icons.Default.WaterDrop
+              HabitCategory.GLOW_UP -> Icons.Default.Star
+              HabitCategory.DETOX -> Icons.Default.SelfImprovement
+              HabitCategory.WELLNESS -> Icons.Default.Spa
+            }
+            CategoryMasteryBar(
+              title = "${cat.displayName} ($habitCount habit)",
+              percentage = pct,
+              icon = icon
+            )
+          }
+        }
       }
     }
 
@@ -509,10 +617,10 @@ fun AnalyticsScreen(
     )
 
     VibeButton(
-      text = if (isSharedRecap) "Disalin ke Clipboard! 🎉" else "Bagikan Rekap Habit",
+      text = if (isSharedRecap) "Disalin ke Clipboard!" else "Bagikan Rekap Habit",
       onClick = {
         isSharedRecap = true
-        Toast.makeText(context, "Rekap berhasil disalin! 🌟", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Rekap berhasil disalin!", Toast.LENGTH_SHORT).show()
         coroutineScope.launch {
           delay(2000)
           isSharedRecap = false
@@ -551,7 +659,7 @@ fun AnalyticsScreen(
           Text(trophy.description, style = MaterialTheme.typography.bodyMedium, color = InkSubtle)
           if (trophy.isUnlocked) {
             VibePillBadge(
-              text = "TERBUKA 🏆",
+              text = "TERBUKA",
               backgroundColor = PrimaryBlue,
               textColor = Color.White
             )
@@ -594,9 +702,11 @@ fun AnalyticsScreen(
               verticalAlignment = Alignment.CenterVertically,
               horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-              Text(
-                text = if (tr.isUnlocked) "🏆" else "🔒",
-                fontSize = 20.sp
+              Icon(
+                imageVector = if (tr.isUnlocked) Icons.Default.WorkspacePremium else Icons.Default.Lock,
+                contentDescription = null,
+                tint = if (tr.isUnlocked) PrimaryBlue else InkSubtle,
+                modifier = Modifier.size(24.dp)
               )
               Column(modifier = Modifier.weight(1f)) {
                 Text(tr.title, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelLarge)

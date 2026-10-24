@@ -50,8 +50,8 @@ class HabitRepository(context: Context) {
   private val _trophies = MutableStateFlow<List<Trophy>>(loadTrophies())
   val trophies: StateFlow<List<Trophy>> = _trophies.asStateFlow()
 
-  // Streak state flow
-  private val _masterStreak = MutableStateFlow(prefs.getInt("master_streak", 1))
+  // Streak state flow (starts at 0 for fresh accounts until first habit/task is completed)
+  private val _masterStreak = MutableStateFlow(prefs.getInt("master_streak", 0))
   val masterStreak: StateFlow<Int> = _masterStreak.asStateFlow()
 
   // 24-hour activity check
@@ -63,7 +63,11 @@ class HabitRepository(context: Context) {
   val ignitionEvent: SharedFlow<Int> = _ignitionEvent.asSharedFlow()
 
   init {
-    checkStreakExpiry()
+    if (_habits.value.isEmpty() && _tasks.value.isEmpty() && _masterStreak.value <= 0) {
+      _isStreakActive.value = false
+    } else {
+      checkStreakExpiry()
+    }
   }
 
   fun checkStreakExpiry() {
@@ -328,9 +332,10 @@ class HabitRepository(context: Context) {
     _isOnboarded.value = false
     _habits.value = emptyList()
     _tasks.value = emptyList()
-    _masterStreak.value = 1
+    _masterStreak.value = 0
     _isStreakActive.value = false
-    _userProfile.value = UserProfile(name = "Bestie", handle = "@bestie", habitsCrushed = 0, longestStreakDays = 0, focusHoursLogged = 0)
+    _userProfile.value = UserProfile(name = "Sahabat", handle = "@sahabat", habitsCrushed = 0, longestStreakDays = 0, focusHoursLogged = 0)
+    _trophies.value = loadTrophies()
   }
 
   private fun recalculateProfileStats() {
@@ -362,40 +367,16 @@ class HabitRepository(context: Context) {
     if (!stored.isNullOrBlank()) {
       try {
         val json = com.example.util.CryptoSecurityManager.decrypt(stored)
-        return habitAdapter.fromJson(json) ?: emptyList()
+        val list = habitAdapter.fromJson(json) ?: emptyList()
+        val realList = list.filterNot { it.id == "h1" || it.id == "h2" }
+        if (realList != list) {
+          saveHabits(realList)
+        }
+        return realList
       } catch (_: Exception) {}
     }
-    // Default starter habits if brand new
-    return listOf(
-      Habit(
-        id = "h1",
-        title = "Minum 2L Air Putih 💧",
-        category = HabitCategory.HEALTH,
-        frequency = FrequencyType.DAILY,
-        scheduleTime = "Daily • 08:00 AM",
-        isNumericGoal = true,
-        targetCount = 2,
-        currentCount = 0,
-        unit = "Liter",
-        isCompletedToday = false,
-        streakDays = 2,
-        weekMomentum = listOf(true, true, true, false, true, true, false)
-      ),
-      Habit(
-        id = "h2",
-        title = "Membaca Buku 20 Menit 📖",
-        category = HabitCategory.MIND,
-        frequency = FrequencyType.DAILY,
-        scheduleTime = "Daily • 09:00 PM",
-        isNumericGoal = true,
-        targetCount = 20,
-        currentCount = 0,
-        unit = "Menit",
-        isCompletedToday = false,
-        streakDays = 1,
-        weekMomentum = listOf(true, false, true, true, true, false, false)
-      )
-    )
+    // Clean initial state for new accounts: no demo habits
+    return emptyList()
   }
 
   private fun saveTasks(list: List<DailyTask>) {
@@ -411,28 +392,16 @@ class HabitRepository(context: Context) {
     if (!stored.isNullOrBlank()) {
       try {
         val json = com.example.util.CryptoSecurityManager.decrypt(stored)
-        return taskAdapter.fromJson(json) ?: emptyList()
+        val list = taskAdapter.fromJson(json) ?: emptyList()
+        val realList = list.filterNot { it.id == "t1" || it.id == "t2" }
+        if (realList != list) {
+          saveTasks(realList)
+        }
+        return realList
       } catch (_: Exception) {}
     }
-    // Clean, practical starter tasks
-    return listOf(
-      DailyTask(
-        id = "t1",
-        title = "Mengerjakan tugas kuliah / kantor",
-        category = "Priority",
-        isCompleted = false,
-        timeEstimate = "45m",
-        emoji = "🎯"
-      ),
-      DailyTask(
-        id = "t2",
-        title = "Review materi & baca rangkuman",
-        category = "Quick Win",
-        isCompleted = false,
-        timeEstimate = "15m",
-        emoji = "⚡"
-      )
-    )
+    // Clean initial state for new accounts: no demo tasks
+    return emptyList()
   }
 
   private fun saveProfile(profile: UserProfile) {
@@ -450,13 +419,13 @@ class HabitRepository(context: Context) {
   }
 
   private fun loadProfile(): UserProfile {
-    val name = prefs.getString("user_name", "Bestie") ?: "Bestie"
-    val handle = prefs.getString("user_handle", "@bestie") ?: "@bestie"
-    val bio = prefs.getString("user_bio", "Building atomic habits one day at a time 🌿") ?: ""
+    val name = prefs.getString("user_name", "Sahabat") ?: "Sahabat"
+    val handle = prefs.getString("user_handle", "@sahabat") ?: "@sahabat"
+    val bio = prefs.getString("user_bio", "Membangun kebiasaan positif hari demi hari") ?: ""
     val level = prefs.getInt("user_level", 1)
     val crushed = prefs.getInt("user_crushed", 0)
-    val streak = prefs.getInt("user_streak", 1)
-    val masterStreak = prefs.getInt("master_streak", 1)
+    val streak = prefs.getInt("user_streak", 0)
+    val masterStreak = prefs.getInt("master_streak", 0)
     val lastTime = prefs.getLong("last_activity_time", 0L)
     val sound = prefs.getBoolean("user_sound", true)
     val personaStr = prefs.getString("user_persona", "HYPE") ?: "HYPE"
@@ -465,7 +434,7 @@ class HabitRepository(context: Context) {
     return UserProfile(
       name = name,
       handle = handle,
-      titleBadge = "Habit Starter ⭐",
+      titleBadge = "Habit Starter",
       bio = bio,
       level = level,
       habitsCrushed = crushed,
@@ -488,14 +457,14 @@ class HabitRepository(context: Context) {
     return listOf(
       Trophy(
         id = "t1",
-        title = "First Step 🌱",
+        title = "First Step",
         description = "Mulai dan kunci kebiasaan pertamamu.",
         iconType = "eco",
         isUnlocked = habitsList.isNotEmpty()
       ),
       Trophy(
         id = "t2",
-        title = "Streak Starter 🔥",
+        title = "Streak Starter",
         description = "Pertahankan api streak menyala 3+ hari.",
         iconType = "local_fire_department",
         isUnlocked = maxStreak >= 3,
@@ -504,14 +473,14 @@ class HabitRepository(context: Context) {
       ),
       Trophy(
         id = "t3",
-        title = "Lock In Master 🔒",
+        title = "Lock In Master",
         description = "Selesaikan semua habit harian hari ini.",
         iconType = "lock",
         isUnlocked = completedCount > 0 && completedCount == habitsList.size
       ),
       Trophy(
         id = "t4",
-        title = "Task Slayer 🎯",
+        title = "Task Slayer",
         description = "Selesaikan tugas harian di Streak Tasks.",
         iconType = "self_improvement",
         isUnlocked = tasksDone >= 3,

@@ -73,11 +73,11 @@ object FlameTheme {
   fun getFlameName(streakDays: Int, isActive: Boolean): String {
     if (!isActive || streakDays <= 0) return "Padam (Mati Api)"
     return when {
-      streakDays in 1..3 -> "Orange Ember Flame 🔥"
-      streakDays in 4..7 -> "Crimson Blaze Flame 💥"
-      streakDays in 8..14 -> "Mystic Violet Flame 💜"
-      streakDays in 15..29 -> "Cosmic Cyan Flame ⚡"
-      else -> "Prismatic Gold Flame 👑"
+      streakDays in 1..3 -> "Orange Ember Flame"
+      streakDays in 4..7 -> "Crimson Blaze Flame"
+      streakDays in 8..14 -> "Mystic Violet Flame"
+      streakDays in 15..29 -> "Cosmic Cyan Flame"
+      else -> "Prismatic Gold Flame"
     }
   }
 }
@@ -395,7 +395,7 @@ fun StreakHeroCard(
             .padding(horizontal = 10.dp, vertical = 3.dp)
         ) {
           Text(
-            text = if (isActive && streakDays > 0) "🔥 ACTIVE STREAK" else "❄️ STREAK EXTINCTION",
+            text = if (isActive && streakDays > 0) "ACTIVE STREAK" else "STREAK EXTINCTION",
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.ExtraBold,
             color = if (isActive && streakDays > 0) CharcoalInk else Color(0xFF4B5563)

@@ -97,7 +97,7 @@ fun TodayScreen(
         onIgniteClick = {
           if (!isStreakActive) {
             viewModel.igniteStreak()
-            Toast.makeText(context, "Api streak menyala kembali! 🔥", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Api streak menyala kembali!", Toast.LENGTH_SHORT).show()
           }
         }
       )
@@ -171,7 +171,7 @@ fun TodayScreen(
           contentAlignment = Alignment.Center
         ) {
           Text(
-            text = "⚡ All",
+            text = "All",
             style = MaterialTheme.typography.labelMedium,
             color = if (isAllSelected) Color.White else CharcoalInk,
             fontWeight = FontWeight.Bold
@@ -189,16 +189,12 @@ fun TodayScreen(
               .padding(horizontal = 14.dp, vertical = 6.dp),
             contentAlignment = Alignment.Center
           ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-              Text(text = cat.emoji, fontSize = 13.sp)
-              Spacer(modifier = Modifier.width(4.dp))
-              Text(
-                text = cat.displayName,
-                style = MaterialTheme.typography.labelMedium,
-                color = if (isSelected) Color.White else CharcoalInk,
-                fontWeight = FontWeight.Bold
-              )
-            }
+            Text(
+              text = cat.displayName,
+              style = MaterialTheme.typography.labelMedium,
+              color = if (isSelected) Color.White else CharcoalInk,
+              fontWeight = FontWeight.Bold
+            )
           }
         }
       }
@@ -241,7 +237,12 @@ fun TodayScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(10.dp)
           ) {
-            Text(text = "🌱", fontSize = 36.sp)
+            Icon(
+              imageVector = Icons.Default.LocalFireDepartment,
+              contentDescription = null,
+              tint = PrimaryBlue,
+              modifier = Modifier.size(36.dp)
+            )
             Text(
               text = "Belum ada habit aktif",
               style = MaterialTheme.typography.headlineSmall,
@@ -271,7 +272,7 @@ fun TodayScreen(
           habit = habit,
           onToggle = {
             viewModel.toggleHabit(habit.id)
-            val msg = if (!habit.isCompletedToday) "Checked off! Api streak menyala! 🔥" else "Habit dibatalkan"
+            val msg = if (!habit.isCompletedToday) "Checked off! Api streak menyala!" else "Habit dibatalkan"
             Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
           },
           onIncrement = { viewModel.incrementProgress(habit.id) },
@@ -375,7 +376,7 @@ private fun TodayHabitCard(
                   .padding(horizontal = 6.dp, vertical = 1.dp)
               ) {
                 Text(
-                  text = "${habit.category.emoji} ${habit.category.shortLabel}",
+                  text = habit.category.shortLabel,
                   style = MaterialTheme.typography.labelSmall,
                   color = CharcoalInk,
                   fontWeight = FontWeight.Bold

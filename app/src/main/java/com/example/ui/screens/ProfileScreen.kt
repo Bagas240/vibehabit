@@ -224,7 +224,7 @@ fun ProfileScreen(
           VibeButton(
             text = "Share Card",
             onClick = {
-              Toast.makeText(context, "Profil ${profile.name} berhasil disalin! 🚀", Toast.LENGTH_SHORT).show()
+              Toast.makeText(context, "Profil ${profile.name} berhasil disalin!", Toast.LENGTH_SHORT).show()
             },
             modifier = Modifier.weight(1f),
             backgroundColor = PrimaryBlue,
@@ -351,7 +351,7 @@ fun ProfileScreen(
             fontWeight = FontWeight.ExtraBold
           )
           Text(
-            text = if (isStreakActive) "Api Aktif 🔥" else "Api Padam ❄️",
+            text = if (isStreakActive) "Api Aktif" else "Api Padam",
             style = MaterialTheme.typography.labelSmall,
             color = InkSubtle
           )
@@ -410,7 +410,7 @@ fun ProfileScreen(
             checked = profile.soundHapticsEnabled,
             onCheckedChange = { isEnabled ->
               viewModel.setSoundHaptics(isEnabled)
-              val statusText = if (isEnabled) "Sound & Haptics diaktifkan! 🔔" else "Sound & Haptics dimatikan"
+              val statusText = if (isEnabled) "Sound & Haptics diaktifkan!" else "Sound & Haptics dimatikan"
               Toast.makeText(context, statusText, Toast.LENGTH_SHORT).show()
             },
             colors = SwitchDefaults.colors(
@@ -427,7 +427,7 @@ fun ProfileScreen(
           Button(
             onClick = {
               viewModel.testFeedback()
-              Toast.makeText(context, "Memutar audio lonceng & getaran haptic! 🔔✨", Toast.LENGTH_SHORT).show()
+              Toast.makeText(context, "Memutar audio lonceng dan getaran haptic!", Toast.LENGTH_SHORT).show()
             },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
@@ -437,7 +437,7 @@ fun ProfileScreen(
             shape = RoundedCornerShape(8.dp),
             border = BorderStroke(1.dp, PrimaryBlue.copy(alpha = 0.3f))
           ) {
-            Text("🔊 Tes Efek Suara & Getaran Sekarang", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+            Text("Tes Efek Suara & Getaran Sekarang", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
           }
         }
       }
@@ -596,7 +596,7 @@ fun ProfileScreen(
                 verticalAlignment = Alignment.CenterVertically
               ) {
                 Text(
-                  text = "Bestie Hype ⚡",
+                  text = "Bestie Hype",
                   style = MaterialTheme.typography.headlineSmall.copy(fontSize = 14.sp),
                   color = if (isHype) Color.White else CharcoalInk,
                   fontWeight = FontWeight.Bold
@@ -638,7 +638,7 @@ fun ProfileScreen(
                 verticalAlignment = Alignment.CenterVertically
               ) {
                 Text(
-                  text = "Gentle Whisper 🍃",
+                  text = "Gentle Whisper",
                   style = MaterialTheme.typography.headlineSmall.copy(fontSize = 14.sp),
                   color = if (isWhisper) Color.White else CharcoalInk,
                   fontWeight = FontWeight.Bold
@@ -814,7 +814,12 @@ private fun ActiveHabitCard(
           .border(1.dp, CharcoalInk.copy(alpha = 0.2f), RoundedCornerShape(8.dp)),
         contentAlignment = Alignment.Center
       ) {
-        Text(text = habit.category.emoji, fontSize = 18.sp)
+        Text(
+          text = habit.category.shortLabel.take(2).uppercase(),
+          style = MaterialTheme.typography.labelSmall,
+          fontWeight = FontWeight.ExtraBold,
+          color = DeepPrimary
+        )
       }
 
       Column(modifier = Modifier.weight(1f)) {
