@@ -348,18 +348,20 @@ class HabitRepository(context: Context) {
     _trophies.value = loadTrophies()
   }
 
-  // Persistent storage helpers
+  // Encrypted persistent storage helpers
   private fun saveHabits(list: List<Habit>) {
     try {
       val json = habitAdapter.toJson(list)
-      prefs.edit().putString("key_habits_json", json).apply()
+      val encrypted = com.example.util.CryptoSecurityManager.encrypt(json)
+      prefs.edit().putString("key_habits_sec", encrypted).apply()
     } catch (_: Exception) {}
   }
 
   private fun loadHabits(): List<Habit> {
-    val json = prefs.getString("key_habits_json", null)
-    if (!json.isNullOrBlank()) {
+    val stored = prefs.getString("key_habits_sec", null) ?: prefs.getString("key_habits_json", null)
+    if (!stored.isNullOrBlank()) {
       try {
+        val json = com.example.util.CryptoSecurityManager.decrypt(stored)
         return habitAdapter.fromJson(json) ?: emptyList()
       } catch (_: Exception) {}
     }
@@ -399,14 +401,16 @@ class HabitRepository(context: Context) {
   private fun saveTasks(list: List<DailyTask>) {
     try {
       val json = taskAdapter.toJson(list)
-      prefs.edit().putString("key_tasks_json", json).apply()
+      val encrypted = com.example.util.CryptoSecurityManager.encrypt(json)
+      prefs.edit().putString("key_tasks_sec", encrypted).apply()
     } catch (_: Exception) {}
   }
 
   private fun loadTasks(): List<DailyTask> {
-    val json = prefs.getString("key_tasks_json", null)
-    if (!json.isNullOrBlank()) {
+    val stored = prefs.getString("key_tasks_sec", null) ?: prefs.getString("key_tasks_json", null)
+    if (!stored.isNullOrBlank()) {
       try {
+        val json = com.example.util.CryptoSecurityManager.decrypt(stored)
         return taskAdapter.fromJson(json) ?: emptyList()
       } catch (_: Exception) {}
     }

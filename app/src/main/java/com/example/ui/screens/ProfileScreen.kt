@@ -443,62 +443,6 @@ fun ProfileScreen(
       }
     }
 
-    // 4. Streak Testing Tool (Simulate 24-Hour Expiration & Rekindle)
-    VibeStickerBox(
-      modifier = Modifier.fillMaxWidth(),
-      backgroundColor = SurfaceWhite,
-      shape = RoundedCornerShape(16.dp),
-      offsetSize = 2.dp
-    ) {
-      Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-          text = "Eksperimen Streak & Animasi Api 🔥",
-          style = MaterialTheme.typography.headlineSmall.copy(fontSize = 15.sp),
-          color = CharcoalInk,
-          fontWeight = FontWeight.Bold
-        )
-
-        Text(
-          text = "Uji coba kondisi padam (>24 jam tanpa aktivitas) dan saksikan animasi apinya menyala kembali saat aktivitas diselesaikan:",
-          style = MaterialTheme.typography.bodySmall,
-          color = InkSubtle
-        )
-
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-          Button(
-            onClick = {
-              viewModel.simulate24HoursPassed()
-              Toast.makeText(context, "24 jam berlalu! Api padam (abu-abu). Coba check habit/task untuk menyalakan! ❄️", Toast.LENGTH_LONG).show()
-            },
-            modifier = Modifier.weight(1f),
-            colors = ButtonDefaults.buttonColors(
-              containerColor = Color(0xFFF3F4F6),
-              contentColor = Color(0xFF374151)
-            ),
-            shape = RoundedCornerShape(8.dp),
-            border = BorderStroke(1.dp, CharcoalInk.copy(alpha = 0.2f))
-          ) {
-            Text("❄️ Padamkan Api (>24h)", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
-          }
-
-          Button(
-            onClick = {
-              viewModel.igniteStreak()
-              Toast.makeText(context, "Animasi api menyala kembali! 🔥🎉", Toast.LENGTH_SHORT).show()
-            },
-            modifier = Modifier.weight(1f),
-            colors = ButtonDefaults.buttonColors(
-              containerColor = Color(0xFFFFF7ED),
-              contentColor = Color(0xFFC2410C)
-            ),
-            shape = RoundedCornerShape(8.dp),
-            border = BorderStroke(1.dp, Color(0xFFF97316).copy(alpha = 0.4f))
-          ) {
-            Text("🔥 Nyalakan Api!", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
-          }
-        }
-      }
-    }
 
     // 5. Habit Vault & Active Bank
     VibeStickerBox(

@@ -86,6 +86,7 @@ class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
+    com.example.util.AppSecurityIntegrity.isPackageIntegrityValid(this)
     setContent {
       VibeHabitTheme {
         val habitViewModel: VibeHabitViewModel = viewModel()

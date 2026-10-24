@@ -44,7 +44,6 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -54,7 +53,6 @@ import com.example.ui.theme.InkSubtle
 import com.example.ui.theme.SurfaceWhite
 import kotlin.math.cos
 import kotlin.math.sin
-import kotlin.random.Random
 
 // Flame color stages by streak days
 object FlameTheme {
@@ -85,8 +83,8 @@ object FlameTheme {
 }
 
 /**
- * Animated Flame Composable with dynamic streak colors, ignition burst,
- * and bold number centered in the flame.
+ * Authentic Cartoon Campfire Flame Composable with realistic multi-tongue fire silhouette,
+ * floating dancing ember spark, dynamic streak colors, and bold centered day counter.
  */
 @Composable
 fun StreakFlameView(
@@ -99,9 +97,9 @@ fun StreakFlameView(
 ) {
   val (topColor, midColor, botColor) = FlameTheme.getColors(streakDays, isActive)
 
-  val animatedTopColor by animateColorAsState(targetValue = topColor, animationSpec = tween(600), label = "topColor")
-  val animatedMidColor by animateColorAsState(targetValue = midColor, animationSpec = tween(600), label = "midColor")
-  val animatedBotColor by animateColorAsState(targetValue = botColor, animationSpec = tween(600), label = "botColor")
+  val animatedTopColor by animateColorAsState(targetValue = topColor, animationSpec = tween(500), label = "topColor")
+  val animatedMidColor by animateColorAsState(targetValue = midColor, animationSpec = tween(500), label = "midColor")
+  val animatedBotColor by animateColorAsState(targetValue = botColor, animationSpec = tween(500), label = "botColor")
 
   // Ignition pop scale
   val ignitionScale = remember { Animatable(1f) }
@@ -111,7 +109,7 @@ fun StreakFlameView(
     if (isIgniting) {
       sparkAlpha.snapTo(1f)
       ignitionScale.animateTo(
-        targetValue = 1.32f,
+        targetValue = 1.34f,
         animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)
       )
       ignitionScale.animateTo(
@@ -122,25 +120,34 @@ fun StreakFlameView(
     }
   }
 
-  // Gentle organic flicker/breathing (lightweight, battery-efficient)
+  // Organic flame flicker and sway
   val infiniteTransition = rememberInfiniteTransition(label = "flameAlive")
   val breatheScale by infiniteTransition.animateFloat(
-    initialValue = 0.98f,
-    targetValue = 1.03f,
+    initialValue = 0.97f,
+    targetValue = 1.04f,
     animationSpec = infiniteRepeatable(
-      animation = tween(1200, easing = FastOutSlowInEasing),
+      animation = tween(1100, easing = FastOutSlowInEasing),
       repeatMode = RepeatMode.Reverse
     ),
     label = "breatheScale"
   )
   val tipSway by infiniteTransition.animateFloat(
-    initialValue = -3f,
-    targetValue = 3f,
+    initialValue = -3.5f,
+    targetValue = 3.5f,
     animationSpec = infiniteRepeatable(
-      animation = tween(900, easing = LinearEasing),
+      animation = tween(850, easing = LinearEasing),
       repeatMode = RepeatMode.Reverse
     ),
     label = "tipSway"
+  )
+  val emberFloat by infiniteTransition.animateFloat(
+    initialValue = -2.5f,
+    targetValue = 3f,
+    animationSpec = infiniteRepeatable(
+      animation = tween(700, easing = LinearEasing),
+      repeatMode = RepeatMode.Reverse
+    ),
+    label = "emberFloat"
   )
 
   val totalScale = ignitionScale.value * (if (isActive) breatheScale else 1f)
@@ -152,30 +159,31 @@ fun StreakFlameView(
       .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier),
     contentAlignment = Alignment.Center
   ) {
-    // 1. Canvas drawing of the stylized flame
+    // 1. Canvas drawing of the multi-tongue cartoon flame
     Canvas(modifier = Modifier.size(flameSize)) {
       val w = size.width
       val h = size.height
+      val cx = w / 2f
 
       // Ignition outer shockwave / aura glow
       if (sparkAlpha.value > 0.01f) {
         drawCircle(
           brush = Brush.radialGradient(
-            colors = listOf(animatedTopColor.copy(alpha = 0.5f * sparkAlpha.value), Color.Transparent),
-            center = Offset(w / 2f, h * 0.55f),
-            radius = w * 0.7f
+            colors = listOf(animatedTopColor.copy(alpha = 0.55f * sparkAlpha.value), Color.Transparent),
+            center = Offset(cx, h * 0.60f),
+            radius = w * 0.75f
           ),
-          radius = w * 0.7f,
-          center = Offset(w / 2f, h * 0.55f)
+          radius = w * 0.75f,
+          center = Offset(cx, h * 0.60f)
         )
 
         // Draw shooting sparks
         val sparkCount = 12
         for (i in 0 until sparkCount) {
           val angle = (i * 360f / sparkCount) * (Math.PI / 180f)
-          val dist = (w * 0.48f) + (sparkAlpha.value * w * 0.25f)
-          val sx = (w / 2f) + (dist * cos(angle)).toFloat()
-          val sy = (h * 0.55f) + (dist * sin(angle)).toFloat()
+          val dist = (w * 0.48f) + (sparkAlpha.value * w * 0.28f)
+          val sx = cx + (dist * cos(angle)).toFloat()
+          val sy = (h * 0.60f) + (dist * sin(angle)).toFloat()
           drawCircle(
             color = animatedTopColor.copy(alpha = sparkAlpha.value),
             radius = 3.5.dp.toPx(),
@@ -184,97 +192,163 @@ fun StreakFlameView(
         }
       }
 
-      // Outer Flame Base Path
+      // ----------------------------------------------------
+      // A. Outer Realistic Flame Silhouette (3 Tongues of Fire)
+      // ----------------------------------------------------
       val flamePath = Path()
-      val cx = w / 2f
-      val tipX = cx + (if (isActive) tipSway * 1.5f else 0f)
+      val bottomX = cx
+      val bottomY = h * 0.95f
+      val mainTipX = cx + (if (isActive) tipSway * 1.5f else 0f)
 
-      flamePath.moveTo(tipX, h * 0.04f) // Flame tip
+      flamePath.moveTo(bottomX, bottomY)
 
-      // Right curvature
+      // Left rounded bowl base
       flamePath.cubicTo(
-        w * 0.88f, h * 0.28f,
-        w * 0.98f, h * 0.65f,
-        cx + w * 0.28f, h * 0.94f
+        w * 0.26f, h * 0.96f,
+        w * 0.08f, h * 0.85f,
+        w * 0.08f, h * 0.66f
       )
 
-      // Bottom bowl curve
+      // Left flame tongue rising up to sharp tip
       flamePath.cubicTo(
-        cx + w * 0.15f, h * 0.99f,
-        cx - w * 0.15f, h * 0.99f,
-        cx - w * 0.28f, h * 0.94f
+        w * 0.08f, h * 0.52f,
+        w * 0.14f, h * 0.38f,
+        w * 0.22f, h * 0.30f
       )
 
-      // Left curvature back to tip
+      // Left cleft dipping down towards center
       flamePath.cubicTo(
-        w * 0.02f, h * 0.65f,
-        w * 0.12f, h * 0.28f,
-        tipX, h * 0.04f
+        w * 0.25f, h * 0.42f,
+        w * 0.32f, h * 0.48f,
+        w * 0.38f, h * 0.36f
+      )
+
+      // Center main flame tongue rising to highest tip
+      flamePath.cubicTo(
+        w * 0.40f, h * 0.22f,
+        w * 0.44f, h * 0.10f,
+        mainTipX, h * 0.06f
+      )
+
+      // Center tip curving down to right cleft
+      flamePath.cubicTo(
+        mainTipX + w * 0.07f, h * 0.18f,
+        w * 0.60f, h * 0.30f,
+        w * 0.64f, h * 0.40f
+      )
+
+      // Right flame tongue branching up to sharp tip
+      flamePath.cubicTo(
+        w * 0.70f, h * 0.34f,
+        w * 0.82f, h * 0.32f,
+        w * 0.88f, h * 0.38f
+      )
+
+      // Right tongue curving down to base
+      flamePath.cubicTo(
+        w * 0.94f, h * 0.54f,
+        w * 0.92f, h * 0.74f,
+        w * 0.72f, h * 0.92f
+      )
+
+      // Right base back to bottom center
+      flamePath.cubicTo(
+        w * 0.62f, h * 0.96f,
+        cx + w * 0.08f, bottomY,
+        bottomX, bottomY
       )
       flamePath.close()
 
-      // Gradient Fill for outer flame
+      // Gradient Fill for outer flame body
       val outerBrush = Brush.verticalGradient(
         colors = listOf(animatedTopColor, animatedMidColor, animatedBotColor),
-        startY = 0f,
-        endY = h
+        startY = h * 0.05f,
+        endY = h * 0.95f
       )
       drawPath(path = flamePath, brush = outerBrush)
 
-      // Crisp cartoon border
+      // Solid cartoon outline
       drawPath(
         path = flamePath,
         color = CharcoalInk,
         style = Stroke(width = 2.4.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
       )
 
-      // Inner Core Flame Path
-      val innerPath = Path()
-      val inTipX = cx + (if (isActive) tipSway * 0.8f else 0f)
-      innerPath.moveTo(inTipX, h * 0.38f)
-      innerPath.cubicTo(
-        w * 0.72f, h * 0.52f,
-        w * 0.78f, h * 0.75f,
-        cx + w * 0.18f, h * 0.90f
-      )
-      innerPath.cubicTo(
-        cx + w * 0.08f, h * 0.93f,
-        cx - w * 0.08f, h * 0.93f,
-        cx - w * 0.18f, h * 0.90f
-      )
-      innerPath.cubicTo(
-        w * 0.22f, h * 0.75f,
-        w * 0.28f, h * 0.52f,
-        inTipX, h * 0.38f
-      )
-      innerPath.close()
+      // ----------------------------------------------------
+      // B. Middle Secondary Fiery Tongue Layer
+      // ----------------------------------------------------
+      val midPath = Path()
+      val midBottomY = h * 0.91f
+      val midTipX = cx + (if (isActive) tipSway * 1.0f else 0f)
 
-      val innerColor = if (isActive && streakDays > 0) Color.White.copy(alpha = 0.55f) else Color(0xFFD1D5DB).copy(alpha = 0.4f)
-      drawPath(path = innerPath, color = innerColor)
+      midPath.moveTo(cx, midBottomY)
+      midPath.cubicTo(w * 0.32f, midBottomY, w * 0.20f, h * 0.80f, w * 0.20f, h * 0.65f)
+      midPath.cubicTo(w * 0.20f, h * 0.54f, w * 0.26f, h * 0.44f, w * 0.32f, h * 0.38f)
+      midPath.cubicTo(w * 0.34f, h * 0.46f, w * 0.38f, h * 0.50f, w * 0.42f, h * 0.42f)
+      midPath.cubicTo(w * 0.44f, h * 0.30f, w * 0.46f, h * 0.20f, midTipX, h * 0.18f)
+      midPath.cubicTo(midTipX + w * 0.05f, h * 0.26f, w * 0.56f, h * 0.38f, w * 0.60f, h * 0.44f)
+      midPath.cubicTo(w * 0.64f, h * 0.40f, w * 0.72f, h * 0.38f, w * 0.76f, h * 0.44f)
+      midPath.cubicTo(w * 0.80f, h * 0.56f, w * 0.80f, h * 0.72f, w * 0.66f, h * 0.88f)
+      midPath.cubicTo(w * 0.58f, midBottomY, cx + w * 0.06f, midBottomY, cx, midBottomY)
+      midPath.close()
+
+      val midFillColor = if (isActive && streakDays > 0) Color(0xFFFFD54F).copy(alpha = 0.85f) else Color(0xFFB0B5BC).copy(alpha = 0.6f)
+      drawPath(path = midPath, color = midFillColor)
       drawPath(
-        path = innerPath,
-        color = CharcoalInk.copy(alpha = 0.35f),
-        style = Stroke(width = 1.2.dp.toPx())
+        path = midPath,
+        color = CharcoalInk.copy(alpha = 0.3f),
+        style = Stroke(width = 1.2.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
       )
+
+      // ----------------------------------------------------
+      // C. Inner Fiery White-Hot Core (Bottom Heart of Flame)
+      // ----------------------------------------------------
+      val corePath = Path()
+      val coreTipX = cx + (if (isActive) tipSway * 0.5f else 0f)
+      corePath.moveTo(cx, h * 0.88f)
+      corePath.cubicTo(w * 0.36f, h * 0.88f, w * 0.30f, h * 0.78f, w * 0.30f, h * 0.68f)
+      corePath.cubicTo(w * 0.30f, h * 0.56f, w * 0.40f, h * 0.46f, coreTipX, h * 0.38f)
+      corePath.cubicTo(coreTipX + w * 0.10f, h * 0.46f, w * 0.70f, h * 0.56f, w * 0.70f, h * 0.68f)
+      corePath.cubicTo(w * 0.70f, h * 0.78f, w * 0.64f, h * 0.88f, cx, h * 0.88f)
+      corePath.close()
+
+      val coreColor = if (isActive && streakDays > 0) Color.White.copy(alpha = 0.88f) else Color(0xFFE2E4E8).copy(alpha = 0.75f)
+      drawPath(path = corePath, color = coreColor)
+
+      // ----------------------------------------------------
+      // D. Detached Floating Dancing Ember Spark (Above Flame Tip)
+      // ----------------------------------------------------
+      if (isActive && streakDays > 0) {
+        val emberX = cx - w * 0.08f + tipSway
+        val emberY = h * 0.03f + emberFloat
+        val emberPath = Path().apply {
+          moveTo(emberX, emberY)
+          cubicTo(emberX + 4.dp.toPx(), emberY + 3.dp.toPx(), emberX + 3.dp.toPx(), emberY + 7.dp.toPx(), emberX, emberY + 7.dp.toPx())
+          cubicTo(emberX - 3.dp.toPx(), emberY + 7.dp.toPx(), emberX - 4.dp.toPx(), emberY + 3.dp.toPx(), emberX, emberY)
+          close()
+        }
+        drawPath(path = emberPath, color = animatedTopColor)
+        drawPath(path = emberPath, color = CharcoalInk, style = Stroke(width = 1.dp.toPx()))
+      }
     }
 
-    // 2. Bold Streak Number in the Center of the Flame
+    // 2. Bold Streak Number Centered in the Lower Heart of the Flame
     Column(
       horizontalAlignment = Alignment.CenterHorizontally,
       verticalArrangement = Arrangement.Center,
-      modifier = Modifier.padding(top = (flameSize * 0.22f))
+      modifier = Modifier.padding(top = (flameSize * 0.30f))
     ) {
       Text(
         text = if (isActive && streakDays > 0) "$streakDays" else "0",
-        fontSize = (flameSize.value * 0.32f).sp,
+        fontSize = (flameSize.value * 0.30f).sp,
         fontWeight = FontWeight.Black,
-        color = Color.White
+        color = CharcoalInk
       )
       Text(
         text = if (isActive && streakDays > 0) "DAY" else "DEAD",
-        fontSize = (flameSize.value * 0.11f).sp,
-        fontWeight = FontWeight.ExtraBold,
-        color = Color.White.copy(alpha = 0.92f),
+        fontSize = (flameSize.value * 0.10f).sp,
+        fontWeight = FontWeight.Black,
+        color = CharcoalInk.copy(alpha = 0.85f),
         letterSpacing = 1.sp
       )
     }
@@ -313,7 +387,6 @@ fun StreakHeroCard(
     ) {
       // Left side: Streak info details
       Column(modifier = Modifier.weight(1f)) {
-        // Status Pill
         Box(
           modifier = Modifier
             .clip(RoundedCornerShape(9999.dp))

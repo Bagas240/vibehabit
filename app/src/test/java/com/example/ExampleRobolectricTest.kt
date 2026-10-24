@@ -7,8 +7,11 @@ import com.example.data.model.DailyTask
 import com.example.data.model.FrequencyType
 import com.example.data.model.Habit
 import com.example.data.model.HabitCategory
+import com.example.util.AppSecurityIntegrity
+import com.example.util.CryptoSecurityManager
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -92,5 +95,23 @@ class ExampleRobolectricTest {
     repo.igniteStreak()
     assertTrue(repo.isStreakActive.value)
     assertEquals(1, repo.masterStreak.value)
+  }
+
+  @Test
+  fun `crypto security manager encrypts plaintext and decrypts accurately`() {
+    val sensitiveText = "{\"habit\":\"Secret Atomic Habit\",\"priority\":1}"
+    val ciphertext = CryptoSecurityManager.encrypt(sensitiveText)
+
+    assertNotEquals(sensitiveText, ciphertext)
+    assertTrue(ciphertext.isNotBlank())
+
+    val decrypted = CryptoSecurityManager.decrypt(ciphertext)
+    assertEquals(sensitiveText, decrypted)
+  }
+
+  @Test
+  fun `package integrity verification validates application namespace`() {
+    val context = ApplicationProvider.getApplicationContext<Context>()
+    assertTrue(AppSecurityIntegrity.isPackageIntegrityValid(context))
   }
 }

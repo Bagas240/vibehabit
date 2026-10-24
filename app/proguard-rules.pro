@@ -1,21 +1,31 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# =================================================================
+# Advanced Code Obfuscation, Anti-Cloning & Security Rules (R8/ProGuard)
+# =================================================================
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# Repackage all internal classes into root to destroy reverse engineering hierarchy
+-repackageclasses ''
+-allowaccessmodification
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# Hide source file names and strip debugging line numbers
+-renamesourcefileattribute ''
+-keepattributes !SourceFile,!LineNumberTable,!MethodParameters
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# Aggressive name mangling
+-overloadaggressively
+-useuniqueclassmembernames
+
+# Strip diagnostic logs in compiled builds
+-assumenosideeffects class android.util.Log {
+    public static boolean isLoggable(java.lang.String, int);
+    public static int v(...);
+    public static int d(...);
+    public static int i(...);
+}
+
+# Preserve necessary model serialization metadata
+-keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod
+-keepclassmembers class * {
+    @com.squareup.moshi.Json <fields>;
+}
+-keep class com.example.data.model.** { *; }
+-dontwarn com.squareup.moshi.**
