@@ -65,29 +65,21 @@ data class UserProfile(
   val avatarUrl: String = "https://lh3.googleusercontent.com/aida-public/AB6AXuDhcHUiuxI958oEC27g3WAVrrQbyiLrPAjHpTA6PsaNC9M9r0V8CWJLgc7tHm8lA2hOx0vVHVgOdMbJ9j8mLzof_P__l8j5B-Zs14L34vA_U-dAiwoTH7lA5AKpKD2TfAV_iQr8orO8P1A8BF2z0GVofr0tsRfc_NVoEm6GrAOYDgwV8jyakpg_-eILg_mTIzvoHA4f-nmod9p6N30N8R1x5LtcWR1Nasi4Ib6BQqd3khkUPHU6oAuApw",
   val habitsCrushed: Int = 0,
   val focusHoursLogged: Int = 0,
-  val longestStreakDays: Int = 0,
+  val longestStreakDays: Int = 1,
+  val masterStreakDays: Int = 1,
+  val lastActivityTimestamp: Long = 0L,
   val persona: NotificationPersona = NotificationPersona.HYPE,
   val vibeCheckTimes: List<String> = listOf("12:00 PM", "09:00 PM"),
   val soundHapticsEnabled: Boolean = true,
   val currentTheme: String = "Soft Muted Slate Theme"
 )
 
-data class SquadMember(
-  val id: String,
-  val name: String,
-  val handle: String,
-  val rank: Int,
-  val habitsCompleted: Int,
-  val streakDays: Int,
-  val avatarBgHex: Long,
-  val statusEmoji: String
-)
-
 data class DailyTask(
   val id: String,
   val title: String,
-  val category: String = "Priority", // "Priority", "Quick Win", "Routine"
+  val category: String = "Priority", // "Priority", "Quick Win", "Routine", "Belajar"
   val isCompleted: Boolean = false,
   val timeEstimate: String = "15m",
-  val emoji: String = "⚡"
+  val emoji: String = "⚡",
+  val completedAt: Long? = null
 )

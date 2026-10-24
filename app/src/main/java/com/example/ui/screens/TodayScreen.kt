@@ -25,11 +25,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.LocalFireDepartment
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -50,23 +47,18 @@ import androidx.compose.ui.unit.sp
 import com.example.data.model.Habit
 import com.example.data.model.HabitCategory
 import com.example.ui.VibeHabitViewModel
-import com.example.ui.components.CartoonTodayIcon
+import com.example.ui.components.StreakHeroCard
 import com.example.ui.components.VibeButton
-import com.example.ui.components.VibePillBadge
 import com.example.ui.components.VibeStickerBox
 import com.example.ui.theme.CharcoalInk
-import com.example.ui.theme.DeepPrimary
 import com.example.ui.theme.InkSubtle
 import com.example.ui.theme.LightPrimaryContainer
 import com.example.ui.theme.PrimaryBlue
 import com.example.ui.theme.SecondaryContainer
-import com.example.ui.theme.SoftPastelCell
 import com.example.ui.theme.SurfaceCanvas
-import com.example.ui.theme.SurfaceContainer
 import com.example.ui.theme.SurfaceContainerHigh
 import com.example.ui.theme.SurfaceContainerLow
 import com.example.ui.theme.SurfaceWhite
-import com.example.ui.theme.TertiaryContainer
 import com.example.ui.theme.TertiaryFixed
 
 @Composable
@@ -80,9 +72,12 @@ fun TodayScreen(
   val allActiveHabits by viewModel.allActiveHabitsRaw.collectAsState()
   val selectedCategory by viewModel.selectedCategory.collectAsState()
 
+  val masterStreak by viewModel.masterStreak.collectAsState()
+  val isStreakActive by viewModel.isStreakActive.collectAsState()
+  val isIgnitingStreak by viewModel.isIgnitingStreak.collectAsState()
+
   val totalActive = allActiveHabits.size
   val completedCount = allActiveHabits.count { it.isCompletedToday }
-  val progressPercent = if (totalActive > 0) (completedCount.toFloat() / totalActive) else 0f
 
   LazyColumn(
     modifier = modifier
@@ -93,70 +88,61 @@ fun TodayScreen(
     verticalArrangement = Arrangement.spacedBy(14.dp)
   ) {
 
-    // 1. Daily Progress & Momentum Bento
+    // 1. Streak Flame Hero Card (With animated Canvas flame, centered streak number, and extinction logic)
+    item {
+      StreakHeroCard(
+        streakDays = masterStreak,
+        isActive = isStreakActive,
+        isIgniting = isIgnitingStreak,
+        onIgniteClick = {
+          if (!isStreakActive) {
+            viewModel.igniteStreak()
+            Toast.makeText(context, "Api streak menyala kembali! 🔥", Toast.LENGTH_SHORT).show()
+          }
+        }
+      )
+    }
+
+    // 2. Daily Habits Progress Summary (Clean, no AI icons or generic buzzwords)
     item {
       VibeStickerBox(
         modifier = Modifier.fillMaxWidth(),
         backgroundColor = SurfaceWhite,
-        shape = RoundedCornerShape(16.dp),
-        offsetSize = 3.dp,
-        borderWidth = 2.dp
+        shape = RoundedCornerShape(14.dp),
+        borderWidth = 1.5.dp
       ) {
         Row(
           modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(horizontal = 16.dp, vertical = 12.dp),
           horizontalArrangement = Arrangement.SpaceBetween,
           verticalAlignment = Alignment.CenterVertically
         ) {
-          Column(modifier = Modifier.weight(1f)) {
-            VibePillBadge(
-              text = "TODAY'S MOMENTUM",
-              backgroundColor = SoftPastelCell,
-              textColor = DeepPrimary,
-              icon = {
-                CartoonTodayIcon(isSelected = true, modifier = Modifier.size(15.dp))
-              }
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
+          Column {
             Text(
-              text = "$completedCount of $totalActive Crushed! 🔥",
-              style = MaterialTheme.typography.headlineMedium,
+              text = "$completedCount dari $totalActive Habit Selesai",
+              style = MaterialTheme.typography.headlineSmall.copy(fontSize = 15.sp),
               color = CharcoalInk,
-              fontWeight = FontWeight.ExtraBold
+              fontWeight = FontWeight.Bold
             )
-
             Text(
-              text = if (completedCount == totalActive) "100% Locked in! Main character status! ✨"
-              else "Keep the momentum going strong today.",
+              text = if (completedCount == totalActive && totalActive > 0) "Semua habit hari ini tuntas!"
+              else "Kunci habit harian untuk memperkuat konsistensi.",
               style = MaterialTheme.typography.bodySmall,
-              color = InkSubtle,
-              modifier = Modifier.padding(top = 2.dp)
+              color = InkSubtle
             )
           }
 
-          // Progress Circle
           Box(
             modifier = Modifier
-              .size(68.dp)
-              .clip(CircleShape)
-              .background(Color(0xFFE5EBF5))
-              .border(2.dp, CharcoalInk, CircleShape)
-              .padding(6.dp),
-            contentAlignment = Alignment.Center
+              .clip(RoundedCornerShape(8.dp))
+              .background(if (completedCount == totalActive && totalActive > 0) Color(0xFFD1FAE5) else Color(0xFFE5EBF5))
+              .border(1.dp, CharcoalInk.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
+              .padding(horizontal = 10.dp, vertical = 6.dp)
           ) {
-            CircularProgressIndicator(
-              progress = { progressPercent },
-              modifier = Modifier.fillMaxSize(),
-              color = PrimaryBlue,
-              trackColor = Color(0xFFD0DCEE),
-              strokeWidth = 6.dp
-            )
             Text(
-              text = "${(progressPercent * 100).toInt()}%",
-              style = MaterialTheme.typography.labelSmall,
+              text = if (totalActive > 0) "${((completedCount.toFloat() / totalActive) * 100).toInt()}%" else "0%",
+              style = MaterialTheme.typography.labelMedium,
               color = CharcoalInk,
               fontWeight = FontWeight.ExtraBold
             )
@@ -165,7 +151,7 @@ fun TodayScreen(
       }
     }
 
-    // 2. Category Filter Pills
+    // 3. Category Filter Pills
     item {
       Row(
         modifier = Modifier
@@ -218,7 +204,7 @@ fun TodayScreen(
       }
     }
 
-    // 3. Habits Section Header
+    // 4. Habits Section Header
     item {
       Row(
         modifier = Modifier.fillMaxWidth(),
@@ -226,20 +212,20 @@ fun TodayScreen(
         verticalAlignment = Alignment.CenterVertically
       ) {
         Text(
-          text = "Habits to Lock In",
+          text = "Habit Harian",
           style = MaterialTheme.typography.headlineSmall,
           color = CharcoalInk,
           fontWeight = FontWeight.Bold
         )
         Text(
-          text = "${habits.size} Habits",
+          text = "${habits.size} Kebiasaan",
           style = MaterialTheme.typography.labelMedium,
           color = InkSubtle
         )
       }
     }
 
-    // 4. Habit Cards List or Empty State
+    // 5. Habit Cards List or Empty State
     if (habits.isEmpty()) {
       item {
         VibeStickerBox(
@@ -257,20 +243,20 @@ fun TodayScreen(
           ) {
             Text(text = "🌱", fontSize = 36.sp)
             Text(
-              text = "No habits locked in yet!",
+              text = "Belum ada habit aktif",
               style = MaterialTheme.typography.headlineSmall,
               color = CharcoalInk,
               fontWeight = FontWeight.Bold
             )
             Text(
-              text = "Tap below or '+' to start your atomic habit streak today.",
+              text = "Tekan tombol di bawah atau '+' di navigasi untuk memulai kebiasaan pertamamu.",
               style = MaterialTheme.typography.bodySmall,
               color = InkSubtle,
               textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
             Spacer(modifier = Modifier.height(4.dp))
             VibeButton(
-              text = "+ Add First Habit",
+              text = "+ Tambah Habit Baru",
               onClick = onAddHabitClick,
               backgroundColor = PrimaryBlue,
               modifier = Modifier.height(46.dp),
@@ -285,7 +271,7 @@ fun TodayScreen(
           habit = habit,
           onToggle = {
             viewModel.toggleHabit(habit.id)
-            val msg = if (!habit.isCompletedToday) "Checked off! +1 to streak! 🔥" else "Unchecked"
+            val msg = if (!habit.isCompletedToday) "Checked off! Api streak menyala! 🔥" else "Habit dibatalkan"
             Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
           },
           onIncrement = { viewModel.incrementProgress(habit.id) },

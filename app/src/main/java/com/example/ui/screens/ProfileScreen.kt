@@ -1,7 +1,6 @@
 package com.example.ui.screens
 
 import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,33 +22,25 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.HourglassTop
 import androidx.compose.material.icons.filled.LocalFireDepartment
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Logout
-import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.SelfImprovement
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Shield
-import androidx.compose.material.icons.filled.Vibration
-import androidx.compose.material.icons.filled.WaterDrop
+import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
@@ -81,11 +72,8 @@ import com.example.ui.components.VibePillBadge
 import com.example.ui.components.VibeStickerBox
 import com.example.ui.theme.CharcoalInk
 import com.example.ui.theme.DeepPrimary
-import com.example.ui.theme.ErrorContainer
-import com.example.ui.theme.ErrorRed
 import com.example.ui.theme.InkSubtle
 import com.example.ui.theme.LightPrimaryContainer
-import com.example.ui.theme.OnErrorContainer
 import com.example.ui.theme.PrimaryBlue
 import com.example.ui.theme.SecondaryContainer
 import com.example.ui.theme.SurfaceCanvas
@@ -106,6 +94,8 @@ fun ProfileScreen(
   val profile by viewModel.userProfile.collectAsState()
   val activeHabits by viewModel.activeHabits.collectAsState()
   val pausedHabits by viewModel.pausedOrArchivedHabits.collectAsState()
+  val masterStreak by viewModel.masterStreak.collectAsState()
+  val isStreakActive by viewModel.isStreakActive.collectAsState()
 
   var habitVaultTab by remember { mutableStateOf("active") } // "active" or "paused"
   var showEditProfileDialog by remember { mutableStateOf(false) }
@@ -134,7 +124,7 @@ fun ProfileScreen(
           modifier = Modifier.fillMaxWidth(),
           verticalAlignment = Alignment.Top
         ) {
-          // Cartoon Avatar Frame with Lv. 7 Badge
+          // Cartoon Avatar Frame with Lv Badge
           Box(
             modifier = Modifier
               .size(76.dp)
@@ -153,7 +143,7 @@ fun ProfileScreen(
                 modifier = Modifier.fillMaxSize()
               )
             }
-            // Lv. 7 Badge
+            // Lv Badge
             Box(
               modifier = Modifier
                 .align(Alignment.BottomEnd)
@@ -234,7 +224,7 @@ fun ProfileScreen(
           VibeButton(
             text = "Share Card",
             onClick = {
-              Toast.makeText(context, "${profile.name}'s Vibe Card copied to share! 🚀", Toast.LENGTH_SHORT).show()
+              Toast.makeText(context, "Profil ${profile.name} berhasil disalin! 🚀", Toast.LENGTH_SHORT).show()
             },
             modifier = Modifier.weight(1f),
             backgroundColor = PrimaryBlue,
@@ -284,7 +274,7 @@ fun ProfileScreen(
             fontWeight = FontWeight.ExtraBold
           )
           Text(
-            text = "Habits Crushed",
+            text = "Habit Selesai",
             style = MaterialTheme.typography.labelSmall,
             color = InkSubtle
           )
@@ -314,20 +304,20 @@ fun ProfileScreen(
           }
           Spacer(modifier = Modifier.height(6.dp))
           Text(
-            text = "${profile.focusHoursLogged} hrs",
+            text = "${profile.focusHoursLogged} jam",
             style = MaterialTheme.typography.headlineSmall,
             color = CharcoalInk,
             fontWeight = FontWeight.ExtraBold
           )
           Text(
-            text = "Focus Logged",
+            text = "Fokus Log",
             style = MaterialTheme.typography.labelSmall,
             color = InkSubtle
           )
         }
       }
 
-      // Metric 3: Longest Streak
+      // Metric 3: Master Streak
       VibeStickerBox(
         modifier = Modifier.weight(1f),
         backgroundColor = SurfaceWhite,
@@ -342,21 +332,26 @@ fun ProfileScreen(
             modifier = Modifier
               .size(34.dp)
               .clip(CircleShape)
-              .background(LightPrimaryContainer)
+              .background(if (isStreakActive) Color(0xFFFFE0B2) else Color(0xFFE5E7EB))
               .border(1.dp, CharcoalInk.copy(alpha = 0.2f), CircleShape),
             contentAlignment = Alignment.Center
           ) {
-            Icon(Icons.Default.LocalFireDepartment, contentDescription = null, tint = PrimaryBlue, modifier = Modifier.size(18.dp))
+            Icon(
+              Icons.Default.LocalFireDepartment,
+              contentDescription = null,
+              tint = if (isStreakActive) Color(0xFFE65100) else Color(0xFF6B7280),
+              modifier = Modifier.size(18.dp)
+            )
           }
           Spacer(modifier = Modifier.height(6.dp))
           Text(
-            text = "${profile.longestStreakDays} Days",
+            text = "${masterStreak}d",
             style = MaterialTheme.typography.headlineSmall,
             color = CharcoalInk,
             fontWeight = FontWeight.ExtraBold
           )
           Text(
-            text = "Longest Streak",
+            text = if (isStreakActive) "Api Aktif 🔥" else "Api Padam ❄️",
             style = MaterialTheme.typography.labelSmall,
             color = InkSubtle
           )
@@ -364,7 +359,148 @@ fun ProfileScreen(
       }
     }
 
-    // 3. Habit Vault & Active Bank
+    // 3. Sound & Haptics Control Card (REAL WORKING AUDIO & HAPTIC VIBRATION)
+    VibeStickerBox(
+      modifier = Modifier.fillMaxWidth(),
+      backgroundColor = SurfaceWhite,
+      shape = RoundedCornerShape(16.dp),
+      offsetSize = 2.dp
+    ) {
+      Column(modifier = Modifier.padding(16.dp)) {
+        Row(
+          modifier = Modifier.fillMaxWidth(),
+          horizontalArrangement = Arrangement.SpaceBetween,
+          verticalAlignment = Alignment.CenterVertically
+        ) {
+          Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+          ) {
+            Box(
+              modifier = Modifier
+                .size(36.dp)
+                .clip(CircleShape)
+                .background(if (profile.soundHapticsEnabled) Color(0xFFDCFCE7) else Color(0xFFF1F5F9)),
+              contentAlignment = Alignment.Center
+            ) {
+              Icon(
+                Icons.Default.VolumeUp,
+                contentDescription = null,
+                tint = if (profile.soundHapticsEnabled) Color(0xFF166534) else InkSubtle,
+                modifier = Modifier.size(20.dp)
+              )
+            }
+
+            Column {
+              Text(
+                text = "Sound & Haptic Feedback",
+                style = MaterialTheme.typography.headlineSmall.copy(fontSize = 15.sp),
+                color = CharcoalInk,
+                fontWeight = FontWeight.Bold
+              )
+              Text(
+                text = if (profile.soundHapticsEnabled) "Suara lonceng & getaran aktif" else "Suara & getaran dinonaktifkan",
+                style = MaterialTheme.typography.bodySmall,
+                color = InkSubtle
+              )
+            }
+          }
+
+          Switch(
+            checked = profile.soundHapticsEnabled,
+            onCheckedChange = { isEnabled ->
+              viewModel.setSoundHaptics(isEnabled)
+              val statusText = if (isEnabled) "Sound & Haptics diaktifkan! 🔔" else "Sound & Haptics dimatikan"
+              Toast.makeText(context, statusText, Toast.LENGTH_SHORT).show()
+            },
+            colors = SwitchDefaults.colors(
+              checkedThumbColor = Color.White,
+              checkedTrackColor = PrimaryBlue,
+              uncheckedThumbColor = Color.White,
+              uncheckedTrackColor = SurfaceContainerHigh
+            )
+          )
+        }
+
+        if (profile.soundHapticsEnabled) {
+          Spacer(modifier = Modifier.height(10.dp))
+          Button(
+            onClick = {
+              viewModel.testFeedback()
+              Toast.makeText(context, "Memutar audio lonceng & getaran haptic! 🔔✨", Toast.LENGTH_SHORT).show()
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+              containerColor = Color(0xFFEFF6FF),
+              contentColor = PrimaryBlue
+            ),
+            shape = RoundedCornerShape(8.dp),
+            border = BorderStroke(1.dp, PrimaryBlue.copy(alpha = 0.3f))
+          ) {
+            Text("🔊 Tes Efek Suara & Getaran Sekarang", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+          }
+        }
+      }
+    }
+
+    // 4. Streak Testing Tool (Simulate 24-Hour Expiration & Rekindle)
+    VibeStickerBox(
+      modifier = Modifier.fillMaxWidth(),
+      backgroundColor = SurfaceWhite,
+      shape = RoundedCornerShape(16.dp),
+      offsetSize = 2.dp
+    ) {
+      Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+          text = "Eksperimen Streak & Animasi Api 🔥",
+          style = MaterialTheme.typography.headlineSmall.copy(fontSize = 15.sp),
+          color = CharcoalInk,
+          fontWeight = FontWeight.Bold
+        )
+
+        Text(
+          text = "Uji coba kondisi padam (>24 jam tanpa aktivitas) dan saksikan animasi apinya menyala kembali saat aktivitas diselesaikan:",
+          style = MaterialTheme.typography.bodySmall,
+          color = InkSubtle
+        )
+
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+          Button(
+            onClick = {
+              viewModel.simulate24HoursPassed()
+              Toast.makeText(context, "24 jam berlalu! Api padam (abu-abu). Coba check habit/task untuk menyalakan! ❄️", Toast.LENGTH_LONG).show()
+            },
+            modifier = Modifier.weight(1f),
+            colors = ButtonDefaults.buttonColors(
+              containerColor = Color(0xFFF3F4F6),
+              contentColor = Color(0xFF374151)
+            ),
+            shape = RoundedCornerShape(8.dp),
+            border = BorderStroke(1.dp, CharcoalInk.copy(alpha = 0.2f))
+          ) {
+            Text("❄️ Padamkan Api (>24h)", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+          }
+
+          Button(
+            onClick = {
+              viewModel.igniteStreak()
+              Toast.makeText(context, "Animasi api menyala kembali! 🔥🎉", Toast.LENGTH_SHORT).show()
+            },
+            modifier = Modifier.weight(1f),
+            colors = ButtonDefaults.buttonColors(
+              containerColor = Color(0xFFFFF7ED),
+              contentColor = Color(0xFFC2410C)
+            ),
+            shape = RoundedCornerShape(8.dp),
+            border = BorderStroke(1.dp, Color(0xFFF97316).copy(alpha = 0.4f))
+          ) {
+            Text("🔥 Nyalakan Api!", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+          }
+        }
+      }
+    }
+
+    // 5. Habit Vault & Active Bank
     VibeStickerBox(
       modifier = Modifier.fillMaxWidth(),
       backgroundColor = SurfaceWhite,
@@ -412,7 +548,7 @@ fun ProfileScreen(
             contentAlignment = Alignment.Center
           ) {
             Text(
-              text = "Active (${activeHabits.size})",
+              text = "Aktif (${activeHabits.size})",
               style = MaterialTheme.typography.labelMedium,
               color = if (habitVaultTab == "active") Color.White else InkSubtle,
               fontWeight = FontWeight.Bold
@@ -430,7 +566,7 @@ fun ProfileScreen(
             contentAlignment = Alignment.Center
           ) {
             Text(
-              text = "Paused / Archive (${pausedHabits.size})",
+              text = "Jeda / Arsip (${pausedHabits.size})",
               style = MaterialTheme.typography.labelMedium,
               color = if (habitVaultTab == "paused") Color.White else InkSubtle,
               fontWeight = FontWeight.Bold
@@ -464,7 +600,7 @@ fun ProfileScreen(
       }
     }
 
-    // 4. Vibe & Notification Reminders
+    // 6. Notification Persona & Vibe Schedule
     VibeStickerBox(
       modifier = Modifier.fillMaxWidth(),
       backgroundColor = SurfaceWhite,
@@ -483,7 +619,7 @@ fun ProfileScreen(
             modifier = Modifier.size(20.dp)
           )
           Text(
-            text = "Vibe & Notification Reminders",
+            text = "Pengingat Notifikasi",
             style = MaterialTheme.typography.headlineSmall,
             color = CharcoalInk,
             fontWeight = FontWeight.Bold
@@ -491,14 +627,6 @@ fun ProfileScreen(
         }
 
         Spacer(modifier = Modifier.height(12.dp))
-
-        Text(
-          text = "Notification Persona",
-          style = MaterialTheme.typography.labelMedium,
-          color = InkSubtle
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
 
         // Tone options grid
         Row(
@@ -540,7 +668,7 @@ fun ProfileScreen(
               }
               Spacer(modifier = Modifier.height(4.dp))
               Text(
-                text = "\"Lock in! Don't let your streak slip!\"",
+                text = "\"Ayo selesaikan! Jaga api streakmu menyala!\"",
                 style = MaterialTheme.typography.labelSmall,
                 color = if (isHype) Color.White.copy(alpha = 0.9f) else InkSubtle
               )
@@ -582,79 +710,17 @@ fun ProfileScreen(
               }
               Spacer(modifier = Modifier.height(4.dp))
               Text(
-                text = "\"Take your time, breathe and reset.\"",
+                text = "\"Luangkan waktu, tarik napas, dan lanjutkan.\"",
                 style = MaterialTheme.typography.labelSmall,
                 color = if (isWhisper) Color.White.copy(alpha = 0.9f) else InkSubtle
               )
             }
           }
         }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Vibe Check Schedule Row
-        Row(
-          modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(10.dp))
-            .background(SurfaceContainerLow)
-            .border(1.dp, CharcoalInk.copy(alpha = 0.15f), RoundedCornerShape(10.dp))
-            .padding(12.dp),
-          horizontalArrangement = Arrangement.SpaceBetween,
-          verticalAlignment = Alignment.CenterVertically
-        ) {
-          Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-          ) {
-            Box(
-              modifier = Modifier
-                .size(34.dp)
-                .clip(CircleShape)
-                .background(SurfaceContainer)
-                .border(1.dp, CharcoalInk.copy(alpha = 0.2f), CircleShape),
-              contentAlignment = Alignment.Center
-            ) {
-              Text(text = "⏰", fontSize = 16.sp)
-            }
-            Column {
-              Text(
-                text = "Vibe Check Schedule",
-                style = MaterialTheme.typography.headlineSmall.copy(fontSize = 14.sp),
-                color = CharcoalInk,
-                fontWeight = FontWeight.Bold
-              )
-              Text(
-                text = "Twice daily reminders",
-                style = MaterialTheme.typography.bodySmall,
-                color = InkSubtle
-              )
-            }
-          }
-
-          Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            profile.vibeCheckTimes.forEach { time ->
-              Box(
-                modifier = Modifier
-                  .clip(RoundedCornerShape(6.dp))
-                  .background(SurfaceContainerHigh)
-                  .border(1.dp, CharcoalInk.copy(alpha = 0.2f), RoundedCornerShape(6.dp))
-                  .padding(horizontal = 8.dp, vertical = 4.dp)
-              ) {
-                Text(
-                  text = time,
-                  style = MaterialTheme.typography.labelSmall,
-                  color = CharcoalInk,
-                  fontWeight = FontWeight.Bold
-                )
-              }
-            }
-          }
-        }
       }
     }
 
-    // 5. Preferences & Data Support
+    // 7. Privacy & Local Storage
     VibeStickerBox(
       modifier = Modifier.fillMaxWidth(),
       backgroundColor = SurfaceWhite,
@@ -662,101 +728,11 @@ fun ProfileScreen(
       offsetSize = 2.dp
     ) {
       Column(modifier = Modifier.padding(16.dp)) {
-        Text(
-          text = "Preferences & Data",
-          style = MaterialTheme.typography.headlineSmall,
-          color = CharcoalInk,
-          fontWeight = FontWeight.Bold
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        // Item 1: Sound & Haptics
-        Row(
-          modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp),
-          horizontalArrangement = Arrangement.SpaceBetween,
-          verticalAlignment = Alignment.CenterVertically
-        ) {
-          Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-          ) {
-            Icon(Icons.Default.Vibration, contentDescription = null, tint = InkSubtle, modifier = Modifier.size(20.dp))
-            Text(
-              text = "Sound & Haptics",
-              style = MaterialTheme.typography.bodyLarge,
-              color = CharcoalInk
-            )
-          }
-          Switch(
-            checked = profile.soundHapticsEnabled,
-            onCheckedChange = { viewModel.setSoundHaptics(it) },
-            colors = SwitchDefaults.colors(
-              checkedThumbColor = Color.White,
-              checkedTrackColor = PrimaryBlue,
-              uncheckedThumbColor = Color.White,
-              uncheckedTrackColor = SurfaceContainerHigh
-            )
-          )
-        }
-
-        // Item 2: Theme
-        Row(
-          modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 10.dp),
-          horizontalArrangement = Arrangement.SpaceBetween,
-          verticalAlignment = Alignment.CenterVertically
-        ) {
-          Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-          ) {
-            Text(text = "🎨", fontSize = 18.sp)
-            Text(
-              text = profile.currentTheme,
-              style = MaterialTheme.typography.bodyLarge,
-              color = CharcoalInk
-            )
-          }
-          VibePillBadge(
-            text = "Default",
-            backgroundColor = SecondaryContainer,
-            textColor = DeepPrimary
-          )
-        }
-
-        // Item 3: Export Habit Data (CSV)
-        Row(
-          modifier = Modifier
-            .fillMaxWidth()
-            .clickable { showExportDialog = true }
-            .padding(vertical = 10.dp),
-          horizontalArrangement = Arrangement.SpaceBetween,
-          verticalAlignment = Alignment.CenterVertically
-        ) {
-          Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-          ) {
-            Text(text = "📥", fontSize = 18.sp)
-            Text(
-              text = "Export Habit Data (CSV)",
-              style = MaterialTheme.typography.bodyLarge,
-              color = CharcoalInk
-            )
-          }
-          Icon(Icons.AutoMirrored.Filled.ArrowForwardIos, contentDescription = null, tint = InkSubtle, modifier = Modifier.size(14.dp))
-        }
-
-        // Item 4: Privacy & Local Storage
         Row(
           modifier = Modifier
             .fillMaxWidth()
             .clickable { showPrivacyDialog = true }
-            .padding(vertical = 10.dp),
+            .padding(vertical = 6.dp),
           horizontalArrangement = Arrangement.SpaceBetween,
           verticalAlignment = Alignment.CenterVertically
         ) {
@@ -766,7 +742,7 @@ fun ProfileScreen(
           ) {
             Icon(Icons.Default.Shield, contentDescription = null, tint = InkSubtle, modifier = Modifier.size(20.dp))
             Text(
-              text = "Privacy & Local Storage",
+              text = "Privasi & Penyimpanan Lokal",
               style = MaterialTheme.typography.bodyLarge,
               color = CharcoalInk
             )
@@ -776,7 +752,7 @@ fun ProfileScreen(
       }
     }
 
-    // 6. Log Out & Version Footer
+    // 8. Log Out & Version Footer
     Column(
       modifier = Modifier
         .fillMaxWidth()
@@ -784,24 +760,8 @@ fun ProfileScreen(
       horizontalAlignment = Alignment.CenterHorizontally,
       verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-      Button(
-        onClick = {
-          Toast.makeText(context, "Logged out of VibeHabit demo profile", Toast.LENGTH_SHORT).show()
-        },
-        colors = ButtonDefaults.buttonColors(
-          containerColor = SurfaceContainerHigh,
-          contentColor = CharcoalInk
-        ),
-        shape = RoundedCornerShape(10.dp),
-        border = BorderStroke(1.dp, CharcoalInk.copy(alpha = 0.3f))
-      ) {
-        Icon(Icons.Default.Logout, contentDescription = null, modifier = Modifier.size(18.dp))
-        Spacer(modifier = Modifier.width(6.dp))
-        Text(text = "Log Out", style = MaterialTheme.typography.labelLarge)
-      }
-
       Text(
-        text = "VibeHabit Version 2.4.0 (Build 384)",
+        text = "VibeHabit v2.4.0",
         style = MaterialTheme.typography.labelSmall,
         color = InkSubtle
       )
@@ -815,13 +775,13 @@ fun ProfileScreen(
 
     AlertDialog(
       onDismissRequest = { showEditProfileDialog = false },
-      title = { Text("Edit Profile", fontWeight = FontWeight.Bold, color = CharcoalInk) },
+      title = { Text("Edit Profil", fontWeight = FontWeight.Bold, color = CharcoalInk) },
       text = {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
           OutlinedTextField(
             value = editName,
             onValueChange = { editName = it },
-            label = { Text("Display Name") },
+            label = { Text("Nama Tampilan") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
           )
@@ -838,43 +798,16 @@ fun ProfileScreen(
           onClick = {
             viewModel.updateProfile(editName, editBio)
             showEditProfileDialog = false
-            Toast.makeText(context, "Profile updated!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Profil diperbarui!", Toast.LENGTH_SHORT).show()
           },
           colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)
         ) {
-          Text("Save")
+          Text("Simpan")
         }
       },
       dismissButton = {
         TextButton(onClick = { showEditProfileDialog = false }) {
-          Text("Cancel", color = InkSubtle)
-        }
-      }
-    )
-  }
-
-  // Export CSV Dialog
-  if (showExportDialog) {
-    AlertDialog(
-      onDismissRequest = { showExportDialog = false },
-      title = { Text("Export Habit Data (CSV)", fontWeight = FontWeight.Bold) },
-      text = {
-        Text("Your habits, streaks, and check-in logs are formatted into standard CSV. Ready to export or back up locally.")
-      },
-      confirmButton = {
-        Button(
-          onClick = {
-            showExportDialog = false
-            Toast.makeText(context, "Habit records exported to CSV successfully!", Toast.LENGTH_LONG).show()
-          },
-          colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)
-        ) {
-          Text("Download CSV")
-        }
-      },
-      dismissButton = {
-        TextButton(onClick = { showExportDialog = false }) {
-          Text("Close")
+          Text("Batal", color = InkSubtle)
         }
       }
     )
@@ -884,16 +817,16 @@ fun ProfileScreen(
   if (showPrivacyDialog) {
     AlertDialog(
       onDismissRequest = { showPrivacyDialog = false },
-      title = { Text("Privacy & Local Storage", fontWeight = FontWeight.Bold) },
+      title = { Text("Privasi & Penyimpanan Lokal", fontWeight = FontWeight.Bold) },
       text = {
-        Text("VibeHabit operates completely private and secure. Your habit logs, streaks, and notifications remain strictly in your local vault.")
+        Text("Semua data kebiasaan, catatan tugas harian, dan streak Anda disimpan secara aman dan privat langsung di perangkat Anda tanpa data pihak ketiga.")
       },
       confirmButton = {
         Button(
           onClick = { showPrivacyDialog = false },
           colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)
         ) {
-          Text("Got it")
+          Text("Mengerti")
         }
       }
     )
@@ -923,7 +856,6 @@ private fun ActiveHabitCard(
       horizontalArrangement = Arrangement.spacedBy(10.dp),
       modifier = Modifier.weight(1f)
     ) {
-      // Category Icon
       val iconBg = when (habit.category) {
         HabitCategory.WELLNESS -> TertiaryFixed
         HabitCategory.MIND -> SecondaryContainer
@@ -979,7 +911,6 @@ private fun ActiveHabitCard(
       verticalAlignment = Alignment.CenterVertically,
       horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-      // Pause button
       Box(
         modifier = Modifier
           .size(32.dp)
@@ -992,7 +923,6 @@ private fun ActiveHabitCard(
         Icon(Icons.Default.Pause, contentDescription = "Pause", tint = CharcoalInk, modifier = Modifier.size(16.dp))
       }
 
-      // More menu button
       Box {
         Box(
           modifier = Modifier
@@ -1003,7 +933,7 @@ private fun ActiveHabitCard(
             .clickable { menuExpanded = true },
           contentAlignment = Alignment.Center
         ) {
-          Icon(Icons.Default.MoreVert, contentDescription = "Options", tint = CharcoalInk, modifier = Modifier.size(16.dp))
+          Icon(Icons.Default.MoreVert, contentDescription = "Opsi", tint = CharcoalInk, modifier = Modifier.size(16.dp))
         }
 
         DropdownMenu(
@@ -1011,14 +941,14 @@ private fun ActiveHabitCard(
           onDismissRequest = { menuExpanded = false }
         ) {
           DropdownMenuItem(
-            text = { Text("Pause Habit") },
+            text = { Text("Jeda Habit") },
             onClick = {
               onPause()
               menuExpanded = false
             }
           )
           DropdownMenuItem(
-            text = { Text("Archive Habit") },
+            text = { Text("Arsipkan Habit") },
             onClick = {
               onArchive()
               menuExpanded = false
@@ -1080,13 +1010,13 @@ private fun PausedHabitCard(
               .padding(horizontal = 6.dp, vertical = 1.dp)
           ) {
             Text(
-              text = if (habit.isArchived) "Archived" else "Paused",
+              text = if (habit.isArchived) "Arsip" else "Jeda",
               style = MaterialTheme.typography.labelSmall,
               color = InkSubtle
             )
           }
           Text(
-            text = habit.statusNote ?: "Inactive",
+            text = habit.statusNote ?: "Tidak aktif",
             style = MaterialTheme.typography.bodySmall,
             color = InkSubtle
           )
@@ -1105,7 +1035,7 @@ private fun PausedHabitCard(
       modifier = Modifier.height(32.dp)
     ) {
       Text(
-        text = if (habit.isArchived) "Unarchive" else "Resume",
+        text = if (habit.isArchived) "Buka Arsip" else "Lanjutkan",
         style = MaterialTheme.typography.labelSmall,
         fontWeight = FontWeight.Bold
       )

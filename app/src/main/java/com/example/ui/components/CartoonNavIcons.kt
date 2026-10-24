@@ -198,24 +198,6 @@ fun CartoonAnalyticsIcon(
         style = Stroke(strokeWidth)
       )
 
-      // Sparkle Star ✦ on top of tallest bar
-      if (isSelected) {
-        val sx = b3X + b3W / 2f + 2.dp.toPx()
-        val sy = b3Y - 2.dp.toPx()
-        val spPath = Path().apply {
-          moveTo(sx, sy - 3.dp.toPx())
-          lineTo(sx + 1.dp.toPx(), sy - 1.dp.toPx())
-          lineTo(sx + 3.dp.toPx(), sy)
-          lineTo(sx + 1.dp.toPx(), sy + 1.dp.toPx())
-          lineTo(sx, sy + 3.dp.toPx())
-          lineTo(sx - 1.dp.toPx(), sy + 1.dp.toPx())
-          lineTo(sx - 3.dp.toPx(), sy)
-          lineTo(sx - 1.dp.toPx(), sy - 1.dp.toPx())
-          close()
-        }
-        drawPath(spPath, color = sparkleColor)
-        drawPath(spPath, color = outlineColor, style = Stroke(1.dp.toPx()))
-      }
     }
   }
 }

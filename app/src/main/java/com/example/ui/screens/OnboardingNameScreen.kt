@@ -114,7 +114,7 @@ fun OnboardingNameScreen(
         Spacer(modifier = Modifier.height(10.dp))
 
         Text(
-          text = "Welcome to VibeHabit! ✨",
+          text = "Welcome to VibeHabit!",
           style = MaterialTheme.typography.headlineLarge,
           color = CharcoalInk,
           fontWeight = FontWeight.ExtraBold
@@ -206,10 +206,10 @@ fun OnboardingNameScreen(
         text = "Start My Journey 🚀",
         onClick = {
           if (userNameInput.trim().isEmpty()) {
-            Toast.makeText(context, "Please enter your name to start! ✨", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Silakan masukkan namamu untuk memulai!", Toast.LENGTH_SHORT).show()
           } else {
             viewModel.completeOnboarding(userNameInput.trim())
-            Toast.makeText(context, "Welcome aboard, ${userNameInput.trim()}! 🎉", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Selamat datang, ${userNameInput.trim()}! 🎉", Toast.LENGTH_SHORT).show()
           }
         },
         modifier = Modifier

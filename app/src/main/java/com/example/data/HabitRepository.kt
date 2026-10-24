@@ -7,14 +7,16 @@ import com.example.data.model.FrequencyType
 import com.example.data.model.Habit
 import com.example.data.model.HabitCategory
 import com.example.data.model.NotificationPersona
-import com.example.data.model.SquadMember
 import com.example.data.model.Trophy
 import com.example.data.model.UserProfile
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
@@ -48,8 +50,73 @@ class HabitRepository(context: Context) {
   private val _trophies = MutableStateFlow<List<Trophy>>(loadTrophies())
   val trophies: StateFlow<List<Trophy>> = _trophies.asStateFlow()
 
-  private val _squad = MutableStateFlow<List<SquadMember>>(loadSquad())
-  val squad: StateFlow<List<SquadMember>> = _squad.asStateFlow()
+  // Streak state flow
+  private val _masterStreak = MutableStateFlow(prefs.getInt("master_streak", 1))
+  val masterStreak: StateFlow<Int> = _masterStreak.asStateFlow()
+
+  // 24-hour activity check
+  private val _isStreakActive = MutableStateFlow(computeIsStreakActive())
+  val isStreakActive: StateFlow<Boolean> = _isStreakActive.asStateFlow()
+
+  // Ignition trigger event flow
+  private val _ignitionEvent = MutableSharedFlow<Int>(extraBufferCapacity = 1)
+  val ignitionEvent: SharedFlow<Int> = _ignitionEvent.asSharedFlow()
+
+  init {
+    checkStreakExpiry()
+  }
+
+  fun checkStreakExpiry() {
+    val lastTime = prefs.getLong("last_activity_time", 0L)
+    val now = System.currentTimeMillis()
+    val hoursPassed = if (lastTime > 0) (now - lastTime) / (1000 * 60 * 60) else 0
+
+    val anyDoneToday = _habits.value.any { it.isCompletedToday } || _tasks.value.any { it.isCompleted }
+    if (lastTime > 0 && hoursPassed >= 24 && !anyDoneToday) {
+      // 24 hours without activity passed! Streak goes dormant
+      _isStreakActive.value = false
+    } else {
+      _isStreakActive.value = anyDoneToday || (lastTime > 0 && hoursPassed < 24)
+    }
+  }
+
+  private fun computeIsStreakActive(): Boolean {
+    val lastTime = prefs.getLong("last_activity_time", 0L)
+    val now = System.currentTimeMillis()
+    val hoursPassed = if (lastTime > 0) (now - lastTime) / (1000 * 60 * 60) else 0
+    val anyDoneToday = _habits.value.any { it.isCompletedToday } || _tasks.value.any { it.isCompleted }
+    return anyDoneToday || (lastTime > 0 && hoursPassed < 24)
+  }
+
+  private fun registerActivity() {
+    val now = System.currentTimeMillis()
+    val wasActive = _isStreakActive.value
+    val currentStreak = _masterStreak.value
+
+    prefs.edit().putLong("last_activity_time", now).apply()
+
+    if (!wasActive || currentStreak <= 0) {
+      // Rekindle flame from zero/dormant!
+      val newStreak = 1
+      _masterStreak.value = newStreak
+      _isStreakActive.value = true
+      prefs.edit().putInt("master_streak", newStreak).apply()
+      _ignitionEvent.tryEmit(newStreak)
+    } else {
+      // Already active, verify if needs ignition celebrate on first activity
+      _isStreakActive.value = true
+      _ignitionEvent.tryEmit(currentStreak)
+    }
+
+    _userProfile.update {
+      it.copy(
+        masterStreakDays = _masterStreak.value,
+        lastActivityTimestamp = now,
+        longestStreakDays = maxOf(it.longestStreakDays, _masterStreak.value)
+      )
+    }
+    saveProfile(_userProfile.value)
+  }
 
   fun completeOnboarding(name: String) {
     val cleanName = name.trim().ifBlank { "Habit Hero" }
@@ -66,10 +133,12 @@ class HabitRepository(context: Context) {
   }
 
   fun toggleHabitToday(habitId: String) {
+    var wasNowCompleted = false
     _habits.update { list ->
       list.map { habit ->
         if (habit.id == habitId) {
           val newCompleted = !habit.isCompletedToday
+          if (newCompleted) wasNowCompleted = true
           val newCount = if (newCompleted) habit.targetCount else 0
           val streakDelta = if (newCompleted) 1 else -1
           val updatedStreak = maxOf(0, habit.streakDays + streakDelta)
@@ -87,15 +156,21 @@ class HabitRepository(context: Context) {
       }
     }
     saveHabits(_habits.value)
+    if (wasNowCompleted) {
+      registerActivity()
+    } else {
+      checkStreakExpiry()
+    }
     recalculateProfileStats()
   }
 
   fun updateHabitProgress(habitId: String, delta: Int) {
+    var isNowDone = false
     _habits.update { list ->
       list.map { habit ->
         if (habit.id == habitId) {
           val next = maxOf(0, habit.currentCount + delta)
-          val isNowDone = next >= habit.targetCount && habit.targetCount > 0
+          isNowDone = next >= habit.targetCount && habit.targetCount > 0
           val newMomentum = habit.weekMomentum.toMutableList()
           if (newMomentum.isNotEmpty()) {
             newMomentum[newMomentum.lastIndex] = isNowDone
@@ -109,6 +184,9 @@ class HabitRepository(context: Context) {
       }
     }
     saveHabits(_habits.value)
+    if (isNowDone) {
+      registerActivity()
+    }
     recalculateProfileStats()
   }
 
@@ -165,14 +243,26 @@ class HabitRepository(context: Context) {
   }
 
   fun toggleTask(taskId: String) {
+    var wasChecked = false
     _tasks.update { list ->
       list.map { task ->
         if (task.id == taskId) {
-          task.copy(isCompleted = !task.isCompleted)
+          val nextState = !task.isCompleted
+          if (nextState) wasChecked = true
+          task.copy(
+            isCompleted = nextState,
+            completedAt = if (nextState) System.currentTimeMillis() else null
+          )
         } else task
       }
     }
     saveTasks(_tasks.value)
+    if (wasChecked) {
+      registerActivity()
+    } else {
+      checkStreakExpiry()
+    }
+    _trophies.value = loadTrophies()
   }
 
   fun addTask(task: DailyTask) {
@@ -183,6 +273,32 @@ class HabitRepository(context: Context) {
   fun deleteTask(taskId: String) {
     _tasks.update { list -> list.filter { it.id != taskId } }
     saveTasks(_tasks.value)
+  }
+
+  // Testing & demo tool: Simulate 24 hours passed without activity
+  fun simulate24HoursPassed() {
+    val pastTime = System.currentTimeMillis() - (26 * 3600 * 1000L)
+    prefs.edit().putLong("last_activity_time", pastTime).apply()
+
+    // Uncheck habits for today
+    _habits.update { list ->
+      list.map { it.copy(isCompletedToday = false, currentCount = 0) }
+    }
+    saveHabits(_habits.value)
+
+    // Uncheck tasks
+    _tasks.update { list ->
+      list.map { it.copy(isCompleted = false) }
+    }
+    saveTasks(_tasks.value)
+
+    _isStreakActive.value = false
+    _userProfile.update { it.copy(habitsCrushed = 0) }
+  }
+
+  // Rekindle / ignite streak manually
+  fun igniteStreak() {
+    registerActivity()
   }
 
   fun setNotificationPersona(persona: NotificationPersona) {
@@ -212,21 +328,24 @@ class HabitRepository(context: Context) {
     _isOnboarded.value = false
     _habits.value = emptyList()
     _tasks.value = emptyList()
+    _masterStreak.value = 1
+    _isStreakActive.value = false
     _userProfile.value = UserProfile(name = "Bestie", handle = "@bestie", habitsCrushed = 0, longestStreakDays = 0, focusHoursLogged = 0)
   }
 
   private fun recalculateProfileStats() {
     val completedCount = _habits.value.count { it.isCompletedToday && !it.isPaused && !it.isArchived }
-    val maxStreak = _habits.value.maxOfOrNull { it.streakDays } ?: 0
-    val totalCrushed = prefs.getInt("key_total_crushed", 0) + (if (completedCount > 0) 1 else 0)
+    val maxStreak = maxOf(_masterStreak.value, _habits.value.maxOfOrNull { it.streakDays } ?: 0)
 
     _userProfile.update { current ->
       current.copy(
         habitsCrushed = completedCount,
-        longestStreakDays = maxStreak
+        longestStreakDays = maxStreak,
+        masterStreakDays = _masterStreak.value
       )
     }
     saveProfile(_userProfile.value)
+    _trophies.value = loadTrophies()
   }
 
   // Persistent storage helpers
@@ -244,7 +363,37 @@ class HabitRepository(context: Context) {
         return habitAdapter.fromJson(json) ?: emptyList()
       } catch (_: Exception) {}
     }
-    return emptyList() // Clean start for real user tracking!
+    // Default starter habits if brand new
+    return listOf(
+      Habit(
+        id = "h1",
+        title = "Minum 2L Air Putih 💧",
+        category = HabitCategory.HEALTH,
+        frequency = FrequencyType.DAILY,
+        scheduleTime = "Daily • 08:00 AM",
+        isNumericGoal = true,
+        targetCount = 2,
+        currentCount = 0,
+        unit = "Liter",
+        isCompletedToday = false,
+        streakDays = 2,
+        weekMomentum = listOf(true, true, true, false, true, true, false)
+      ),
+      Habit(
+        id = "h2",
+        title = "Membaca Buku 20 Menit 📖",
+        category = HabitCategory.MIND,
+        frequency = FrequencyType.DAILY,
+        scheduleTime = "Daily • 09:00 PM",
+        isNumericGoal = true,
+        targetCount = 20,
+        currentCount = 0,
+        unit = "Menit",
+        isCompletedToday = false,
+        streakDays = 1,
+        weekMomentum = listOf(true, false, true, true, true, false, false)
+      )
+    )
   }
 
   private fun saveTasks(list: List<DailyTask>) {
@@ -261,7 +410,25 @@ class HabitRepository(context: Context) {
         return taskAdapter.fromJson(json) ?: emptyList()
       } catch (_: Exception) {}
     }
-    return emptyList() // Clean start for real user tracking!
+    // Clean, practical starter tasks
+    return listOf(
+      DailyTask(
+        id = "t1",
+        title = "Mengerjakan tugas kuliah / kantor",
+        category = "Priority",
+        isCompleted = false,
+        timeEstimate = "45m",
+        emoji = "🎯"
+      ),
+      DailyTask(
+        id = "t2",
+        title = "Review materi & baca rangkuman",
+        category = "Quick Win",
+        isCompleted = false,
+        timeEstimate = "15m",
+        emoji = "⚡"
+      )
+    )
   }
 
   private fun saveProfile(profile: UserProfile) {
@@ -272,6 +439,7 @@ class HabitRepository(context: Context) {
       .putInt("user_level", profile.level)
       .putInt("user_crushed", profile.habitsCrushed)
       .putInt("user_streak", profile.longestStreakDays)
+      .putInt("master_streak", profile.masterStreakDays)
       .putBoolean("user_sound", profile.soundHapticsEnabled)
       .putString("user_persona", profile.persona.name)
       .apply()
@@ -283,7 +451,9 @@ class HabitRepository(context: Context) {
     val bio = prefs.getString("user_bio", "Building atomic habits one day at a time 🌿") ?: ""
     val level = prefs.getInt("user_level", 1)
     val crushed = prefs.getInt("user_crushed", 0)
-    val streak = prefs.getInt("user_streak", 0)
+    val streak = prefs.getInt("user_streak", 1)
+    val masterStreak = prefs.getInt("master_streak", 1)
+    val lastTime = prefs.getLong("last_activity_time", 0L)
     val sound = prefs.getBoolean("user_sound", true)
     val personaStr = prefs.getString("user_persona", "HYPE") ?: "HYPE"
     val persona = try { NotificationPersona.valueOf(personaStr) } catch (_: Exception) { NotificationPersona.HYPE }
@@ -296,7 +466,9 @@ class HabitRepository(context: Context) {
       level = level,
       habitsCrushed = crushed,
       focusHoursLogged = crushed * 2,
-      longestStreakDays = streak,
+      longestStreakDays = maxOf(streak, masterStreak),
+      masterStreakDays = masterStreak,
+      lastActivityTimestamp = lastTime,
       persona = persona,
       soundHapticsEnabled = sound
     )
@@ -306,48 +478,42 @@ class HabitRepository(context: Context) {
     val habitsList = _habits?.value ?: emptyList()
     val tasksList = _tasks?.value ?: emptyList()
     val completedCount = habitsList.count { it.isCompletedToday }
-    val maxStreak = habitsList.maxOfOrNull { it.streakDays } ?: 0
+    val maxStreak = _masterStreak?.value ?: 1
     val tasksDone = tasksList.count { it.isCompleted }
 
     return listOf(
       Trophy(
         id = "t1",
         title = "First Step 🌱",
-        description = "Create and lock in your first habit.",
+        description = "Mulai dan kunci kebiasaan pertamamu.",
         iconType = "eco",
         isUnlocked = habitsList.isNotEmpty()
       ),
       Trophy(
         id = "t2",
         title = "Streak Starter 🔥",
-        description = "Maintain an active streak of 3+ days.",
+        description = "Pertahankan api streak menyala 3+ hari.",
         iconType = "local_fire_department",
         isUnlocked = maxStreak >= 3,
         progressPercent = minOf(100, (maxStreak * 100) / 3),
-        progressText = "$maxStreak/3 days"
+        progressText = "$maxStreak/3 hari"
       ),
       Trophy(
         id = "t3",
         title = "Lock In Master 🔒",
-        description = "Complete all habits for the day.",
+        description = "Selesaikan semua habit harian hari ini.",
         iconType = "lock",
         isUnlocked = completedCount > 0 && completedCount == habitsList.size
       ),
       Trophy(
         id = "t4",
         title = "Task Slayer 🎯",
-        description = "Complete 5 daily tasks in Task Vault.",
+        description = "Selesaikan tugas harian di Streak Tasks.",
         iconType = "self_improvement",
-        isUnlocked = tasksDone >= 5,
-        progressPercent = minOf(100, (tasksDone * 100) / 5),
-        progressText = "$tasksDone/5 tasks"
+        isUnlocked = tasksDone >= 3,
+        progressPercent = minOf(100, (tasksDone * 100) / 3),
+        progressText = "$tasksDone/3 tugas"
       )
     )
   }
-
-  private fun loadSquad(): List<SquadMember> = listOf(
-    SquadMember("s1", "You ⭐", "@you", 1, 0, 0, 0xFF3B68B5, "⭐"),
-    SquadMember("s2", "Maya Chen", "@mayavibes", 2, 12, 4, 0xFF98B6A2, "🔥"),
-    SquadMember("s3", "Liam Davies", "@liam_focus", 3, 9, 3, 0xFF8CA6DB, "⚡")
-  )
 }

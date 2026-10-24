@@ -24,9 +24,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Eco
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -56,23 +55,14 @@ import androidx.compose.ui.unit.sp
 import com.example.data.model.FrequencyType
 import com.example.data.model.Habit
 import com.example.data.model.HabitCategory
-import com.example.ui.AppDestination
 import com.example.ui.VibeHabitViewModel
 import com.example.ui.components.VibeButton
 import com.example.ui.components.VibePillBadge
-import com.example.ui.components.VibeStickerBox
 import com.example.ui.theme.CharcoalInk
 import com.example.ui.theme.DeepPrimary
-import com.example.ui.theme.InkMuted
 import com.example.ui.theme.InkSubtle
 import com.example.ui.theme.PrimaryBlue
-import com.example.ui.theme.SecondaryContainer
-import com.example.ui.theme.SoftPastelCell
 import com.example.ui.theme.SurfaceCanvas
-import com.example.ui.theme.SurfaceContainer
-import com.example.ui.theme.SurfaceContainerHigh
-import com.example.ui.theme.SurfaceContainerLow
-import com.example.ui.theme.SurfaceWhite
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -88,13 +78,13 @@ fun AddHabitScreen(
   val context = LocalContext.current
   val coroutineScope = rememberCoroutineScope()
 
-  var habitTitle by remember { mutableStateOf("Read 20 pages before bed 📖") }
+  var habitTitle by remember { mutableStateOf("Membaca 20 halaman buku 📖") }
   var selectedCategory by remember { mutableStateOf(HabitCategory.MIND) }
   var frequencyType by remember { mutableStateOf(FrequencyType.DAILY) }
-  val activeDays = remember { mutableStateListOf(0, 1, 2, 3, 4, 5) } // Mon-Sat active
+  val activeDays = remember { mutableStateListOf(0, 1, 2, 3, 4, 5, 6) }
   var isNumericGoal by remember { mutableStateOf(true) }
   var goalCount by remember { mutableIntStateOf(20) }
-  var goalUnit by remember { mutableStateOf("Pages") }
+  var goalUnit by remember { mutableStateOf("Halaman") }
   var reminderTime by remember { mutableStateOf("21:30") }
   var isLockedInCelebration by remember { mutableStateOf(false) }
 
@@ -108,7 +98,7 @@ fun AddHabitScreen(
     verticalArrangement = Arrangement.spacedBy(16.dp)
   ) {
 
-    // 1. Header / Mascot Inspiration Greeting Card
+    // 1. Header Card
     Box(
       modifier = Modifier
         .fillMaxWidth()
@@ -123,47 +113,45 @@ fun AddHabitScreen(
         verticalAlignment = Alignment.CenterVertically
       ) {
         Column(modifier = Modifier.weight(1f)) {
-          // Level 01 Pill
           VibePillBadge(
-            text = "LEVEL 01",
+            text = "HABIT BARU",
             backgroundColor = Color(0xFFDCE5F2),
             textColor = DeepPrimary,
             icon = {
-              Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = DeepPrimary, modifier = Modifier.size(13.dp))
+              Icon(Icons.Default.Eco, contentDescription = null, tint = DeepPrimary, modifier = Modifier.size(13.dp))
             }
           )
 
           Spacer(modifier = Modifier.height(6.dp))
 
           Text(
-            text = "Start a New Habit ✨",
+            text = "Kunci Kebiasaan Positif 🌱",
             style = MaterialTheme.typography.headlineMedium,
             color = CharcoalInk,
             fontWeight = FontWeight.Bold
           )
 
           Text(
-            text = "Small moves, big main character energy.",
+            text = "Bangun rutinitas yang konsisten setiap hari.",
             style = MaterialTheme.typography.bodySmall,
             color = InkSubtle,
             modifier = Modifier.padding(top = 2.dp)
           )
         }
 
-        // Mascot Stamp Visual
         Box(
           modifier = Modifier
-            .size(56.dp)
+            .size(52.dp)
             .clip(CircleShape)
             .background(PrimaryBlue)
             .border(2.dp, Color(0x332B4675), CircleShape),
           contentAlignment = Alignment.Center
         ) {
           Icon(
-            imageVector = Icons.Default.Star,
-            contentDescription = "Mascot Star",
+            imageVector = Icons.Default.Eco,
+            contentDescription = null,
             tint = Color.White,
-            modifier = Modifier.size(34.dp)
+            modifier = Modifier.size(28.dp)
           )
         }
       }
@@ -171,23 +159,12 @@ fun AddHabitScreen(
 
     // 2. Habit Title Input Field
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-      Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-      ) {
-        Text(
-          text = "Habit Title",
-          style = MaterialTheme.typography.labelLarge,
-          color = CharcoalInk,
-          fontWeight = FontWeight.Bold
-        )
-        Text(
-          text = "Step 1 of 5",
-          style = MaterialTheme.typography.labelSmall,
-          color = InkSubtle
-        )
-      }
+      Text(
+        text = "Nama Habit",
+        style = MaterialTheme.typography.labelLarge,
+        color = CharcoalInk,
+        fontWeight = FontWeight.Bold
+      )
 
       Box(
         modifier = Modifier
@@ -214,7 +191,6 @@ fun AddHabitScreen(
               .testTag("habit_title_input")
           )
 
-          // Character Count Badge
           Box(
             modifier = Modifier
               .size(24.dp)
@@ -233,28 +209,15 @@ fun AddHabitScreen(
       }
     }
 
-    // 3. Category & Mascot Icon Selector
+    // 3. Category Selector
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-      Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-      ) {
-        Text(
-          text = "Pick your vibe category:",
-          style = MaterialTheme.typography.labelLarge,
-          color = CharcoalInk,
-          fontWeight = FontWeight.Bold
-        )
-        Text(
-          text = "5 vibes",
-          style = MaterialTheme.typography.bodySmall,
-          color = PrimaryBlue,
-          fontWeight = FontWeight.Bold
-        )
-      }
+      Text(
+        text = "Pilih Kategori:",
+        style = MaterialTheme.typography.labelLarge,
+        color = CharcoalInk,
+        fontWeight = FontWeight.Bold
+      )
 
-      // Horizontal Scrollable Category Pills
       Row(
         modifier = Modifier
           .fillMaxWidth()
@@ -266,7 +229,8 @@ fun AddHabitScreen(
           HabitCategory.FITNESS,
           HabitCategory.HEALTH,
           HabitCategory.GLOW_UP,
-          HabitCategory.DETOX
+          HabitCategory.DETOX,
+          HabitCategory.WELLNESS
         )
 
         categories.forEach { category ->
@@ -296,7 +260,7 @@ fun AddHabitScreen(
       }
     }
 
-    // 4. Frequency & Target Setter
+    // 4. Frequency Setter
     Box(
       modifier = Modifier
         .fillMaxWidth()
@@ -312,19 +276,19 @@ fun AddHabitScreen(
           verticalAlignment = Alignment.CenterVertically
         ) {
           Text(
-            text = "How often do we lock in?",
+            text = "Frekuensi Habit",
             style = MaterialTheme.typography.labelLarge,
             color = CharcoalInk,
             fontWeight = FontWeight.Bold
           )
           VibePillBadge(
-            text = "STREAK READY",
+            text = "SIAP STREAK",
             backgroundColor = Color(0xFFD7E2F0),
             textColor = DeepPrimary
           )
         }
 
-        // Segmented Frequency Switcher (Daily, Specific Days, X times / wk)
+        // Segmented Frequency Switcher
         Row(
           modifier = Modifier
             .fillMaxWidth()
@@ -355,7 +319,7 @@ fun AddHabitScreen(
         }
 
         // Day of the Week Picker (M, T, W, T, F, S, S)
-        val dayLetters = listOf("M", "T", "W", "T", "F", "S", "S")
+        val dayLetters = listOf("S", "S", "R", "K", "J", "S", "M")
         Row(
           modifier = Modifier.fillMaxWidth(),
           horizontalArrangement = Arrangement.SpaceBetween
@@ -415,13 +379,13 @@ fun AddHabitScreen(
             }
             Column {
               Text(
-                text = "Track quantity / numeric goal",
+                text = "Target Jumlah / Numerik",
                 style = MaterialTheme.typography.labelLarge,
                 color = CharcoalInk,
                 fontWeight = FontWeight.Bold
               )
               Text(
-                text = "Measure exact increments",
+                text = "Hitung progres kuantitatif",
                 style = MaterialTheme.typography.bodySmall,
                 color = InkSubtle
               )
@@ -440,7 +404,6 @@ fun AddHabitScreen(
           )
         }
 
-        // Counter Controls: − [ 20 Pages ] +
         if (isNumericGoal) {
           Row(
             modifier = Modifier
@@ -516,13 +479,13 @@ fun AddHabitScreen(
           verticalAlignment = Alignment.CenterVertically
         ) {
           Text(
-            text = "Reminder Vibe",
+            text = "Jadwal Pengingat",
             style = MaterialTheme.typography.labelLarge,
             color = CharcoalInk,
             fontWeight = FontWeight.Bold
           )
           VibePillBadge(
-            text = "PUSH READY",
+            text = "WAKTU",
             backgroundColor = Color(0xFFDBE5F3),
             textColor = DeepPrimary
           )
@@ -533,7 +496,6 @@ fun AddHabitScreen(
           horizontalArrangement = Arrangement.spacedBy(10.dp),
           verticalAlignment = Alignment.CenterVertically
         ) {
-          // Time Picker Pill Box
           Box(
             modifier = Modifier
               .clip(RoundedCornerShape(10.dp))
@@ -552,12 +514,11 @@ fun AddHabitScreen(
                   fontWeight = FontWeight.Bold,
                   color = CharcoalInk
                 ),
-                modifier = Modifier.width(50.dp)
+                modifier = Modifier.width(55.dp)
               )
             }
           }
 
-          // Mascot Microcopy Bubble
           Box(
             modifier = Modifier
               .weight(1f)
@@ -566,16 +527,12 @@ fun AddHabitScreen(
               .border(1.dp, Color(0xFFDCE3EC), RoundedCornerShape(10.dp))
               .padding(horizontal = 12.dp, vertical = 10.dp)
           ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-              Text(text = "🌙", fontSize = 16.sp)
-              Spacer(modifier = Modifier.width(6.dp))
-              Text(
-                text = "\"Hey bestie, time to read!\"",
-                style = MaterialTheme.typography.bodySmall,
-                color = CharcoalInk,
-                maxLines = 1
-              )
-            }
+            Text(
+              text = "Setiap hari pukul $reminderTime",
+              style = MaterialTheme.typography.bodySmall,
+              color = CharcoalInk,
+              maxLines = 1
+            )
           }
         }
       }
@@ -588,8 +545,7 @@ fun AddHabitScreen(
         .padding(top = 4.dp),
       verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-      // Primary Chunky CTA Button ("Lock In This Habit 🚀")
-      val buttonText = if (isLockedInCelebration) "LOCKED IN! 🔥" else "Lock In This Habit 🚀"
+      val buttonText = if (isLockedInCelebration) "HABIT TERSIMPAN! 🔥" else "Kunci Habit Ini 🚀"
       val buttonColor by animateColorAsState(
         targetValue = if (isLockedInCelebration) DeepPrimary else PrimaryBlue,
         label = "lockinColor"
@@ -599,7 +555,7 @@ fun AddHabitScreen(
         text = buttonText,
         onClick = {
           if (habitTitle.isBlank()) {
-            Toast.makeText(context, "Please enter a habit title!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Silakan masukkan nama habit!", Toast.LENGTH_SHORT).show()
             return@VibeButton
           }
 
@@ -609,7 +565,7 @@ fun AddHabitScreen(
             category = selectedCategory,
             frequency = frequencyType,
             activeDays = activeDays.toList(),
-            scheduleTime = "Daily • $reminderTime",
+            scheduleTime = "Harian • $reminderTime",
             isNumericGoal = isNumericGoal,
             targetCount = if (isNumericGoal) goalCount else 1,
             currentCount = 0,
@@ -621,7 +577,7 @@ fun AddHabitScreen(
 
           viewModel.addHabit(newHabit)
           isLockedInCelebration = true
-          Toast.makeText(context, "Habit locked in! Streak started! 🚀", Toast.LENGTH_SHORT).show()
+          Toast.makeText(context, "Habit berhasil disimpan! Api streak aktif! 🚀", Toast.LENGTH_SHORT).show()
 
           coroutineScope.launch {
             delay(1000)
@@ -639,12 +595,8 @@ fun AddHabitScreen(
         testTag = "lock_in_habit_btn"
       )
 
-      // Secondary CTA Button ("Save to Drafts")
       Button(
-        onClick = {
-          Toast.makeText(context, "Saved to drafts! 📝", Toast.LENGTH_SHORT).show()
-          onNavigateBack()
-        },
+        onClick = { onNavigateBack() },
         modifier = Modifier
           .fillMaxWidth()
           .height(48.dp),
@@ -656,7 +608,7 @@ fun AddHabitScreen(
         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFC7D5E7))
       ) {
         Text(
-          text = "Save to Drafts",
+          text = "Kembali",
           style = MaterialTheme.typography.labelLarge,
           fontWeight = FontWeight.Bold
         )

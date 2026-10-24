@@ -39,7 +39,7 @@ class ExampleRobolectricTest {
   }
 
   @Test
-  fun `habit repository add and toggle habit updates completion`() {
+  fun `habit repository add and toggle habit updates completion and streak`() {
     val context = ApplicationProvider.getApplicationContext<Context>()
     val repo = HabitRepository(context)
 
@@ -57,6 +57,7 @@ class ExampleRobolectricTest {
     repo.toggleHabitToday("test-habit-1")
     val updated = repo.habits.value.first { it.id == "test-habit-1" }
     assertTrue(updated.isCompletedToday)
+    assertTrue(repo.isStreakActive.value)
   }
 
   @Test
@@ -66,7 +67,7 @@ class ExampleRobolectricTest {
 
     val task = DailyTask(
       id = "test-task-1",
-      title = "Review Materi Kuliah",
+      title = "Mengerjakan Tugas Kuliah",
       category = "Priority",
       isCompleted = false
     )
@@ -77,5 +78,19 @@ class ExampleRobolectricTest {
     repo.toggleTask("test-task-1")
     val updated = repo.tasks.value.first { it.id == "test-task-1" }
     assertTrue(updated.isCompleted)
+    assertTrue(repo.isStreakActive.value)
+  }
+
+  @Test
+  fun `simulating 24 hours passed extinguishes flame and checking habit reignites it`() {
+    val context = ApplicationProvider.getApplicationContext<Context>()
+    val repo = HabitRepository(context)
+
+    repo.simulate24HoursPassed()
+    assertFalse(repo.isStreakActive.value)
+
+    repo.igniteStreak()
+    assertTrue(repo.isStreakActive.value)
+    assertEquals(1, repo.masterStreak.value)
   }
 }

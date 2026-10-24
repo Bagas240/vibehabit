@@ -1,7 +1,6 @@
 package com.example.ui.screens
 
 import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -27,14 +26,15 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.DeleteOutline
-import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -54,21 +54,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.DailyTask
 import com.example.ui.VibeHabitViewModel
-import com.example.ui.components.CartoonTaskIcon
-import com.example.ui.components.VibePillBadge
+import com.example.ui.components.StreakFlameView
 import com.example.ui.components.VibeStickerBox
 import com.example.ui.theme.CharcoalInk
-import com.example.ui.theme.DeepPrimary
 import com.example.ui.theme.InkSubtle
 import com.example.ui.theme.PrimaryBlue
 import com.example.ui.theme.SecondaryContainer
-import com.example.ui.theme.SoftPastelCell
 import com.example.ui.theme.SurfaceCanvas
-import com.example.ui.theme.SurfaceContainer
-import com.example.ui.theme.SurfaceContainerHigh
-import com.example.ui.theme.SurfaceContainerLow
 import com.example.ui.theme.SurfaceWhite
-import com.example.ui.theme.TertiaryContainer
 import com.example.ui.theme.TertiaryFixed
 import java.util.UUID
 
@@ -79,15 +72,19 @@ fun TaskScreen(
 ) {
   val context = LocalContext.current
   val tasks by viewModel.tasks.collectAsState()
+  val masterStreak by viewModel.masterStreak.collectAsState()
+  val isStreakActive by viewModel.isStreakActive.collectAsState()
+  val isIgnitingStreak by viewModel.isIgnitingStreak.collectAsState()
 
-  var selectedFilter by remember { mutableStateOf("All") } // "All", "Priority", "Quick Win", "Routine"
+  var selectedFilter by remember { mutableStateOf("All") } // "All", "Priority", "Quick Win", "Routine", "Belajar"
   var newTaskText by remember { mutableStateOf("") }
-  var showSquadSection by remember { mutableStateOf(false) }
+  var showAddTaskDialog by remember { mutableStateOf(false) }
 
   val filteredTasks = when (selectedFilter) {
     "Priority" -> tasks.filter { it.category == "Priority" }
     "Quick Win" -> tasks.filter { it.category == "Quick Win" }
     "Routine" -> tasks.filter { it.category == "Routine" }
+    "Belajar" -> tasks.filter { it.category == "Belajar" }
     else -> tasks
   }
 
@@ -104,7 +101,7 @@ fun TaskScreen(
     verticalArrangement = Arrangement.spacedBy(14.dp)
   ) {
 
-    // 1. Task Progress Hero Bento
+    // 1. Streak Tasks Bento Hero Card with Flame View
     item {
       VibeStickerBox(
         modifier = Modifier.fillMaxWidth(),
@@ -119,38 +116,55 @@ fun TaskScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
           ) {
-            VibePillBadge(
-              text = "TASK VAULT",
-              backgroundColor = SoftPastelCell,
-              textColor = DeepPrimary,
-              icon = {
-                CartoonTaskIcon(isSelected = true, modifier = Modifier.size(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+              Box(
+                modifier = Modifier
+                  .clip(RoundedCornerShape(9999.dp))
+                  .background(if (isStreakActive) Color(0xFFFED7AA) else Color(0xFFE5E7EB))
+                  .border(1.dp, CharcoalInk.copy(alpha = 0.2f), RoundedCornerShape(9999.dp))
+                  .padding(horizontal = 8.dp, vertical = 2.dp)
+              ) {
+                Text(
+                  text = if (isStreakActive) "🔥 STREAK TASK AKTIF" else "❄️ STREAK DORMANT",
+                  style = MaterialTheme.typography.labelSmall,
+                  fontWeight = FontWeight.ExtraBold,
+                  color = CharcoalInk
+                )
+              }
+
+              Spacer(modifier = Modifier.height(6.dp))
+
+              Text(
+                text = "Streak Tasks 🔥",
+                style = MaterialTheme.typography.headlineMedium,
+                color = CharcoalInk,
+                fontWeight = FontWeight.ExtraBold
+              )
+
+              Text(
+                text = "Selesaikan tugas harianmu untuk menjaga nyala api streak!",
+                style = MaterialTheme.typography.bodySmall,
+                color = InkSubtle,
+                modifier = Modifier.padding(top = 2.dp)
+              )
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            // Task Streak Flame Icon
+            StreakFlameView(
+              streakDays = masterStreak,
+              isActive = isStreakActive,
+              isIgniting = isIgnitingStreak,
+              flameSize = 78.dp,
+              onClick = {
+                if (!isStreakActive) {
+                  viewModel.igniteStreak()
+                  Toast.makeText(context, "Api streak tugas menyala! 🔥", Toast.LENGTH_SHORT).show()
+                }
               }
             )
-
-            Text(
-              text = "$completedCount of $totalCount Done",
-              style = MaterialTheme.typography.labelMedium,
-              color = PrimaryBlue,
-              fontWeight = FontWeight.Bold
-            )
           }
-
-          Spacer(modifier = Modifier.height(8.dp))
-
-          Text(
-            text = "Lock In Daily Tasks 🎯",
-            style = MaterialTheme.typography.headlineMedium,
-            color = CharcoalInk,
-            fontWeight = FontWeight.ExtraBold
-          )
-
-          Text(
-            text = "Crush your high-impact micro tasks alongside your atomic habits.",
-            style = MaterialTheme.typography.bodySmall,
-            color = InkSubtle,
-            modifier = Modifier.padding(top = 2.dp)
-          )
 
           Spacer(modifier = Modifier.height(12.dp))
 
@@ -180,13 +194,13 @@ fun TaskScreen(
             horizontalArrangement = Arrangement.SpaceBetween
           ) {
             Text(
-              text = "${(progressPercent * 100).toInt()}% Completion",
+              text = "$completedCount dari $totalCount Selesai (${(progressPercent * 100).toInt()}%)",
               style = MaterialTheme.typography.labelSmall,
               color = PrimaryBlue,
               fontWeight = FontWeight.Bold
             )
             Text(
-              text = if (completedCount == totalCount && totalCount > 0) "All Clear! 🚀" else "${totalCount - completedCount} tasks left",
+              text = if (completedCount == totalCount && totalCount > 0) "Tuntas Semua! 🚀" else "${totalCount - completedCount} tersisa",
               style = MaterialTheme.typography.labelSmall,
               color = CharcoalInk,
               fontWeight = FontWeight.Bold
@@ -226,7 +240,7 @@ fun TaskScreen(
             decorationBox = { innerTextField ->
               if (newTaskText.isEmpty()) {
                 Text(
-                  text = "Add quick task (e.g. Email prof, buy groceries)...",
+                  text = "Tambah tugas (misal: Mengerjakan PR, Baca buku)...",
                   style = MaterialTheme.typography.bodySmall,
                   color = InkSubtle
                 )
@@ -243,12 +257,12 @@ fun TaskScreen(
                   title = newTaskText.trim(),
                   category = "Priority",
                   isCompleted = false,
-                  timeEstimate = "10m",
-                  emoji = "⚡"
+                  timeEstimate = "20m",
+                  emoji = "🎯"
                 )
                 viewModel.addTask(newTask)
                 newTaskText = ""
-                Toast.makeText(context, "Task added! 🎯", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Tugas ditambahkan! 🎯", Toast.LENGTH_SHORT).show()
               }
             },
             colors = ButtonDefaults.buttonColors(
@@ -260,45 +274,71 @@ fun TaskScreen(
           ) {
             Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
             Spacer(modifier = Modifier.width(4.dp))
-            Text("Add", style = MaterialTheme.typography.labelMedium)
+            Text("Tambah", style = MaterialTheme.typography.labelMedium)
           }
         }
       }
     }
 
-    // 3. Category Filter Tabs
+    // 3. Category Filter Tabs & Add Custom Task Button
     item {
       Row(
-        modifier = Modifier
-          .fillMaxWidth()
-          .horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
       ) {
-        val filters = listOf("All", "Priority", "Quick Win", "Routine")
-        filters.forEach { filter ->
-          val isSelected = selectedFilter == filter
-          Box(
-            modifier = Modifier
-              .clip(RoundedCornerShape(9999.dp))
-              .background(if (isSelected) PrimaryBlue else Color.White)
-              .border(1.5.dp, CharcoalInk, RoundedCornerShape(9999.dp))
-              .clickable { selectedFilter = filter }
-              .padding(horizontal = 14.dp, vertical = 6.dp),
-            contentAlignment = Alignment.Center
-          ) {
-            val emoji = when (filter) {
-              "Priority" -> "🎯 "
-              "Quick Win" -> "⚡ "
-              "Routine" -> "🧹 "
-              else -> "📋 "
+        Row(
+          modifier = Modifier
+            .weight(1f)
+            .horizontalScroll(rememberScrollState()),
+          horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+          val filters = listOf("All", "Priority", "Belajar", "Quick Win", "Routine")
+          filters.forEach { filter ->
+            val isSelected = selectedFilter == filter
+            Box(
+              modifier = Modifier
+                .clip(RoundedCornerShape(9999.dp))
+                .background(if (isSelected) PrimaryBlue else Color.White)
+                .border(1.5.dp, CharcoalInk, RoundedCornerShape(9999.dp))
+                .clickable { selectedFilter = filter }
+                .padding(horizontal = 12.dp, vertical = 6.dp),
+              contentAlignment = Alignment.Center
+            ) {
+              val emoji = when (filter) {
+                "Priority" -> "🎯 "
+                "Belajar" -> "📚 "
+                "Quick Win" -> "⚡ "
+                "Routine" -> "🧹 "
+                else -> "📋 "
+              }
+              Text(
+                text = "$emoji$filter",
+                style = MaterialTheme.typography.labelMedium,
+                color = if (isSelected) Color.White else CharcoalInk,
+                fontWeight = FontWeight.Bold
+              )
             }
-            Text(
-              text = "$emoji$filter",
-              style = MaterialTheme.typography.labelMedium,
-              color = if (isSelected) Color.White else CharcoalInk,
-              fontWeight = FontWeight.Bold
-            )
           }
+        }
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        // Custom Task Button
+        Box(
+          modifier = Modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(Color(0xFFE5EBF5))
+            .border(1.dp, CharcoalInk, RoundedCornerShape(10.dp))
+            .clickable { showAddTaskDialog = true }
+            .padding(horizontal = 10.dp, vertical = 6.dp)
+        ) {
+          Text(
+            text = "+ Baru",
+            style = MaterialTheme.typography.labelMedium,
+            color = PrimaryBlue,
+            fontWeight = FontWeight.Bold
+          )
         }
       }
     }
@@ -318,16 +358,16 @@ fun TaskScreen(
               .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
           ) {
-            Text(text = "🎉", fontSize = 32.sp)
+            Text(text = "📝", fontSize = 32.sp)
             Spacer(modifier = Modifier.height(6.dp))
             Text(
-              text = "No tasks in this category!",
+              text = "Belum ada tugas di kategori ini!",
               style = MaterialTheme.typography.headlineSmall.copy(fontSize = 15.sp),
               color = CharcoalInk,
               fontWeight = FontWeight.Bold
             )
             Text(
-              text = "Add a quick task above or take a well-deserved breather.",
+              text = "Ketik tugas baru di atas untuk mulai mencatat tugas harianmu.",
               style = MaterialTheme.typography.bodySmall,
               color = InkSubtle
             )
@@ -340,67 +380,112 @@ fun TaskScreen(
           task = task,
           onToggle = {
             viewModel.toggleTask(task.id)
-            val msg = if (!task.isCompleted) "Task completed! 🌟" else "Task unchecked"
+            val msg = if (!task.isCompleted) "Tugas selesai! Api streak menyala! 🔥" else "Tugas dibatalkan"
             Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
           },
           onDelete = {
             viewModel.deleteTask(task.id)
-            Toast.makeText(context, "Task removed", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Tugas dihapus", Toast.LENGTH_SHORT).show()
           }
         )
       }
     }
 
-    // 5. Optional Squad Toggle Footer
     item {
-      Row(
-        modifier = Modifier
-          .fillMaxWidth()
-          .clip(RoundedCornerShape(12.dp))
-          .background(Color(0xFFEBF0F7))
-          .border(1.dp, Color(0xFFD8E0EB), RoundedCornerShape(12.dp))
-          .clickable { showSquadSection = !showSquadSection }
-          .padding(12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-      ) {
-        Row(
-          verticalAlignment = Alignment.CenterVertically,
-          horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-          Icon(Icons.Default.Groups, contentDescription = null, tint = PrimaryBlue, modifier = Modifier.size(20.dp))
-          Column {
-            Text(
-              text = "Squad Accountability Sprint",
-              style = MaterialTheme.typography.labelLarge,
-              color = CharcoalInk,
-              fontWeight = FontWeight.Bold
-            )
-            Text(
-              text = if (showSquadSection) "Tap to collapse squad view" else "Tap to see squad leaderboard (384/500)",
-              style = MaterialTheme.typography.bodySmall,
-              color = InkSubtle
-            )
+      Spacer(modifier = Modifier.height(20.dp))
+    }
+  }
+
+  // Detailed Add Task Dialog
+  if (showAddTaskDialog) {
+    var title by remember { mutableStateOf("") }
+    var category by remember { mutableStateOf("Priority") }
+    var timeEstimate by remember { mutableStateOf("30m") }
+
+    AlertDialog(
+      onDismissRequest = { showAddTaskDialog = false },
+      title = {
+        Text("Tambah Tugas Baru", fontWeight = FontWeight.Bold, color = CharcoalInk)
+      },
+      text = {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+          OutlinedTextField(
+            value = title,
+            onValueChange = { title = it },
+            label = { Text("Nama Tugas (misal: Mengerjakan Tugas)") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+          )
+
+          Text("Kategori Tugas:", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+          Row(
+            modifier = Modifier
+              .fillMaxWidth()
+              .horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+          ) {
+            listOf("Priority", "Belajar", "Quick Win", "Routine").forEach { cat ->
+              val isSel = category == cat
+              Box(
+                modifier = Modifier
+                  .clip(RoundedCornerShape(8.dp))
+                  .background(if (isSel) PrimaryBlue else Color(0xFFF1F5F9))
+                  .clickable { category = cat }
+                  .padding(horizontal = 10.dp, vertical = 6.dp)
+              ) {
+                Text(
+                  text = cat,
+                  style = MaterialTheme.typography.labelSmall,
+                  color = if (isSel) Color.White else CharcoalInk,
+                  fontWeight = FontWeight.Bold
+                )
+              }
+            }
           }
+
+          OutlinedTextField(
+            value = timeEstimate,
+            onValueChange = { timeEstimate = it },
+            label = { Text("Estimasi Waktu (misal: 15m, 30m, 1j)") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+          )
         }
-        Text(
-          text = if (showSquadSection) "▲" else "▼",
-          fontSize = 14.sp,
-          color = PrimaryBlue,
-          fontWeight = FontWeight.Bold
-        )
+      },
+      confirmButton = {
+        Button(
+          onClick = {
+            if (title.isNotBlank()) {
+              val emoji = when (category) {
+                "Priority" -> "🎯"
+                "Belajar" -> "📚"
+                "Quick Win" -> "⚡"
+                else -> "🧹"
+              }
+              val newTask = DailyTask(
+                id = UUID.randomUUID().toString(),
+                title = title.trim(),
+                category = category,
+                isCompleted = false,
+                timeEstimate = timeEstimate.ifBlank { "20m" },
+                emoji = emoji
+              )
+              viewModel.addTask(newTask)
+              showAddTaskDialog = false
+              Toast.makeText(context, "Tugas berhasil ditambahkan! 🎯", Toast.LENGTH_SHORT).show()
+            }
+          },
+          colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)
+        ) {
+          Text("Simpan Tugas")
+        }
+      },
+      dismissButton = {
+        TextButton(onClick = { showAddTaskDialog = false }) {
+          Text("Batal", color = InkSubtle)
+        }
       }
-    }
-
-    if (showSquadSection) {
-      item {
-        SquadScreen(viewModel = viewModel, modifier = Modifier.fillMaxWidth().height(400.dp))
-      }
-    }
-
-    item {
-      Spacer(modifier = Modifier.height(16.dp))
-    }
+    )
   }
 }
 
@@ -476,6 +561,7 @@ private fun TaskItemCard(
                 .background(
                   when (task.category) {
                     "Priority" -> Color(0xFFFED7AA)
+                    "Belajar" -> Color(0xFFDDD6FE)
                     "Quick Win" -> TertiaryFixed
                     else -> SecondaryContainer
                   }
@@ -503,7 +589,7 @@ private fun TaskItemCard(
       // Delete action button
       Box(
         modifier = Modifier
-          .size(30.dp)
+          .size(32.dp)
           .clip(CircleShape)
           .clickable(onClick = onDelete)
           .padding(4.dp),
@@ -511,7 +597,7 @@ private fun TaskItemCard(
       ) {
         Icon(
           Icons.Default.DeleteOutline,
-          contentDescription = "Delete Task",
+          contentDescription = "Hapus Tugas",
           tint = InkSubtle,
           modifier = Modifier.size(18.dp)
         )

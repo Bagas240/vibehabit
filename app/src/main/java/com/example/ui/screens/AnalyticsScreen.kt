@@ -1,8 +1,6 @@
 package com.example.ui.screens
 
 import android.widget.Toast
-import com.example.data.model.Habit
-import com.example.data.model.HabitCategory
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -24,13 +22,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DoneAll
-import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.FitnessCenter
+import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.SelfImprovement
 import androidx.compose.material.icons.filled.Share
@@ -45,7 +41,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -64,6 +59,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.data.model.Habit
+import com.example.data.model.HabitCategory
 import com.example.data.model.Trophy
 import com.example.ui.VibeHabitViewModel
 import com.example.ui.components.CartoonAnalyticsIcon
@@ -73,17 +70,11 @@ import com.example.ui.components.VibeStickerBox
 import com.example.ui.theme.CharcoalInk
 import com.example.ui.theme.DeepPrimary
 import com.example.ui.theme.InkSubtle
-import com.example.ui.theme.LightPrimaryContainer
 import com.example.ui.theme.PrimaryBlue
-import com.example.ui.theme.SecondaryContainer
 import com.example.ui.theme.SoftPastelCell
 import com.example.ui.theme.SurfaceCanvas
-import com.example.ui.theme.SurfaceContainer
-import com.example.ui.theme.SurfaceContainerHigh
 import com.example.ui.theme.SurfaceContainerLow
 import com.example.ui.theme.SurfaceWhite
-import com.example.ui.theme.TertiaryContainer
-import com.example.ui.theme.TertiaryFixed
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -97,10 +88,10 @@ fun AnalyticsScreen(
   val habits by viewModel.activeHabits.collectAsState()
   val trophies by viewModel.trophies.collectAsState()
   val profile by viewModel.userProfile.collectAsState()
+  val masterStreak by viewModel.masterStreak.collectAsState()
 
   val completedHabitsCount = habits.count { it.isCompletedToday }
   val successRate = if (habits.isNotEmpty()) ((completedHabitsCount.toFloat() / habits.size) * 100).toInt() else 0
-  val maxStreak = habits.maxOfOrNull { it.streakDays } ?: 0
   val crushedCount = profile.habitsCrushed
 
   var showAllTrophiesDialog by remember { mutableStateOf(false) }
@@ -117,7 +108,7 @@ fun AnalyticsScreen(
     verticalArrangement = Arrangement.spacedBy(16.dp)
   ) {
 
-    // 1. Top Greeting & Celebration Banner ("Weekly Wrap")
+    // 1. Top Greeting & Stats Counter ("Laporan Mingguan")
     VibeStickerBox(
       modifier = Modifier.fillMaxWidth(),
       backgroundColor = SurfaceWhite,
@@ -132,9 +123,8 @@ fun AnalyticsScreen(
           verticalAlignment = Alignment.Top
         ) {
           Column(modifier = Modifier.weight(1f)) {
-            // Weekly Wrap Pill
             VibePillBadge(
-              text = "WEEKLY WRAP",
+              text = "LAPORAN MINGGUAN",
               backgroundColor = SoftPastelCell,
               textColor = CharcoalInk,
               icon = {
@@ -145,7 +135,7 @@ fun AnalyticsScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-              text = if (habits.isEmpty()) "Start your journey today! 🚀" else "Consistency is lowkey insane 📈",
+              text = if (habits.isEmpty()) "Mulai perjalananmu hari ini! 🚀" else "Konsistensi terus meningkat! 📈",
               style = MaterialTheme.typography.headlineMedium,
               color = CharcoalInk,
               fontWeight = FontWeight.Bold,
@@ -155,13 +145,12 @@ fun AnalyticsScreen(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-              text = if (habits.isEmpty()) "Lock in your first habit to track your weekly progress." else "Tracking ${habits.size} atomic habits consistently.",
+              text = if (habits.isEmpty()) "Kunci habit pertamamu untuk melacak perkembangan." else "Melacak ${habits.size} kebiasaan harian secara teratur.",
               style = MaterialTheme.typography.bodySmall,
               color = InkSubtle
             )
           }
 
-          // Mascot Stamp Illustration (Rotating Star)
           Box(
             modifier = Modifier
               .size(54.dp)
@@ -171,12 +160,7 @@ fun AnalyticsScreen(
               .border(2.dp, CharcoalInk, CircleShape),
             contentAlignment = Alignment.Center
           ) {
-            Icon(
-              imageVector = Icons.Default.Star,
-              contentDescription = "Mascot Star",
-              tint = Color.White,
-              modifier = Modifier.size(32.dp)
-            )
+            CartoonAnalyticsIcon(isSelected = true, modifier = Modifier.size(32.dp))
           }
         }
 
@@ -189,24 +173,21 @@ fun AnalyticsScreen(
             .padding(top = 8.dp),
           horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-          // Stat 1: Success Rate
           StatCard(
             value = "$successRate%",
-            label = "SUCCESS RATE",
+            label = "TINGKAT SUKSES",
             modifier = Modifier.weight(1f)
           )
 
-          // Stat 2: Top Streak
           StatCard(
-            value = "${maxStreak}d",
-            label = "TOP STREAK 🔥",
+            value = "${masterStreak}d",
+            label = "API STREAK 🔥",
             modifier = Modifier.weight(1f)
           )
 
-          // Stat 3: Crushed
           StatCard(
             value = "$crushedCount",
-            label = "CRUSHED",
+            label = "SELESAI",
             modifier = Modifier.weight(1f)
           )
         }
@@ -229,21 +210,20 @@ fun AnalyticsScreen(
         ) {
           Column {
             Text(
-              text = "Weekly Momentum",
+              text = "Riwayat 7 Hari",
               style = MaterialTheme.typography.headlineSmall,
               color = CharcoalInk,
               fontWeight = FontWeight.Bold
             )
             Text(
-              text = "Tap squares to inspect check-ins",
+              text = "Ketuk kotak untuk menandai check-in",
               style = MaterialTheme.typography.bodySmall,
               color = InkSubtle
             )
           }
 
-          // 4 Perfect Days Badge
           VibePillBadge(
-            text = "4 Perfect Days",
+            text = "Aktif",
             backgroundColor = SoftPastelCell,
             textColor = DeepPrimary,
             icon = {
@@ -254,8 +234,8 @@ fun AnalyticsScreen(
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // Day Headers: HABIT | M | T | W | T | F | S | S
-        val days = listOf("M", "T", "W", "T", "F", "S", "S")
+        // Day Headers: HABIT | S | S | R | K | J | S | M
+        val days = listOf("S", "S", "R", "K", "J", "S", "M")
         Row(
           modifier = Modifier.fillMaxWidth(),
           verticalAlignment = Alignment.CenterVertically
@@ -292,14 +272,13 @@ fun AnalyticsScreen(
             contentAlignment = Alignment.Center
           ) {
             Text(
-              text = "Belum ada kebiasaan aktif. Kunci kebiasaan di tab Today untuk mulai melacak!",
+              text = "Belum ada habit aktif. Tambahkan habit di tab Today untuk mulai melacak!",
               style = MaterialTheme.typography.bodySmall,
               color = InkSubtle,
               textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
           }
         } else {
-          // Momentum Habit Rows (showing user's actual habits)
           habits.take(5).forEach { habit ->
             val label = habit.title
             val emoji = habit.category.emoji
@@ -310,7 +289,6 @@ fun AnalyticsScreen(
                 .padding(vertical = 4.dp),
               verticalAlignment = Alignment.CenterVertically
             ) {
-              // Habit Name + Emoji
               Row(
                 modifier = Modifier.width(82.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -327,7 +305,6 @@ fun AnalyticsScreen(
                 )
               }
 
-              // 7 Day Squares
               habit.weekMomentum.forEachIndexed { dIdx, isChecked ->
                 Box(
                   modifier = Modifier
@@ -366,7 +343,7 @@ fun AnalyticsScreen(
       }
     }
 
-    // 3. Category Breakdown Card ("Category Mastery")
+    // 3. Category Breakdown Card
     val studyHabits = habits.filter { it.category == HabitCategory.MIND || it.category == HabitCategory.GLOW_UP }
     val fitnessHabits = habits.filter { it.category == HabitCategory.FITNESS }
     val wellnessHabits = habits.filter { it.category == HabitCategory.WELLNESS || it.category == HabitCategory.HEALTH || it.category == HabitCategory.DETOX }
@@ -400,7 +377,7 @@ fun AnalyticsScreen(
           verticalAlignment = Alignment.CenterVertically
         ) {
           Text(
-            text = "Category Mastery",
+            text = "Kategori Dominan",
             style = MaterialTheme.typography.headlineSmall,
             color = CharcoalInk,
             fontWeight = FontWeight.Bold
@@ -413,64 +390,27 @@ fun AnalyticsScreen(
           )
         }
 
-        // Bar 1: Mind & Study
-        CategoryMasteryBar(
-          title = "Mind & Study",
-          percentage = studyPct,
-          icon = Icons.Default.Psychology
-        )
-
-        // Bar 2: Fitness & Movement
-        CategoryMasteryBar(
-          title = "Fitness & Movement",
-          percentage = fitnessPct,
-          icon = Icons.Default.FitnessCenter
-        )
-
-        // Bar 3: Wellness & Sleep
-        CategoryMasteryBar(
-          title = "Wellness & Sleep",
-          percentage = wellnessPct,
-          icon = Icons.Default.Spa
-        )
+        CategoryMasteryBar(title = "Mind & Study", percentage = studyPct, icon = Icons.Default.Psychology)
+        CategoryMasteryBar(title = "Fitness & Movement", percentage = fitnessPct, icon = Icons.Default.FitnessCenter)
+        CategoryMasteryBar(title = "Wellness & Sleep", percentage = wellnessPct, icon = Icons.Default.Spa)
       }
     }
 
-    // 4. Cartoon Badge Showcase ("Trophy Vault")
+    // 4. Badge Showcase ("Trophy Vault")
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
       Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
       ) {
-        Row(
-          verticalAlignment = Alignment.CenterVertically,
-          horizontalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-          Text(
-            text = "Trophy Vault",
-            style = MaterialTheme.typography.headlineSmall,
-            color = CharcoalInk,
-            fontWeight = FontWeight.Bold
-          )
-          Box(
-            modifier = Modifier
-              .clip(RoundedCornerShape(9999.dp))
-              .background(PrimaryBlue)
-              .border(1.dp, CharcoalInk, RoundedCornerShape(9999.dp))
-              .padding(horizontal = 8.dp, vertical = 2.dp)
-          ) {
-            Text(
-              text = "3 NEW",
-              style = MaterialTheme.typography.labelSmall,
-              color = Color.White,
-              fontWeight = FontWeight.Bold
-            )
-          }
-        }
-
         Text(
-          text = "View All 16",
+          text = "Piala & Pencapaian",
+          style = MaterialTheme.typography.headlineSmall,
+          color = CharcoalInk,
+          fontWeight = FontWeight.Bold
+        )
+        Text(
+          text = "Lihat Semua",
           style = MaterialTheme.typography.labelMedium,
           color = PrimaryBlue,
           fontWeight = FontWeight.Bold,
@@ -478,25 +418,16 @@ fun AnalyticsScreen(
         )
       }
 
-      // 2x2 Badge Grid
       val displayTrophies = trophies.take(4)
       Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
       ) {
         if (displayTrophies.isNotEmpty()) {
-          TrophyCard(
-            trophy = displayTrophies[0],
-            modifier = Modifier.weight(1f),
-            onClick = { selectedTrophy = displayTrophies[0] }
-          )
+          TrophyCard(trophy = displayTrophies[0], modifier = Modifier.weight(1f), onClick = { selectedTrophy = displayTrophies[0] })
         }
         if (displayTrophies.size > 1) {
-          TrophyCard(
-            trophy = displayTrophies[1],
-            modifier = Modifier.weight(1f),
-            onClick = { selectedTrophy = displayTrophies[1] }
-          )
+          TrophyCard(trophy = displayTrophies[1], modifier = Modifier.weight(1f), onClick = { selectedTrophy = displayTrophies[1] })
         }
       }
 
@@ -505,23 +436,15 @@ fun AnalyticsScreen(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
       ) {
         if (displayTrophies.size > 2) {
-          TrophyCard(
-            trophy = displayTrophies[2],
-            modifier = Modifier.weight(1f),
-            onClick = { selectedTrophy = displayTrophies[2] }
-          )
+          TrophyCard(trophy = displayTrophies[2], modifier = Modifier.weight(1f), onClick = { selectedTrophy = displayTrophies[2] })
         }
         if (displayTrophies.size > 3) {
-          TrophyCard(
-            trophy = displayTrophies[3],
-            modifier = Modifier.weight(1f),
-            onClick = { selectedTrophy = displayTrophies[3] }
-          )
+          TrophyCard(trophy = displayTrophies[3], modifier = Modifier.weight(1f), onClick = { selectedTrophy = displayTrophies[3] })
         }
       }
     }
 
-    // 5. Weekly AI Vibe Insight Pill Box ("COACH VIBE AI")
+    // 5. Tips Konsistensi (Replaced AI Coach with genuine atomic habit tip)
     VibeStickerBox(
       modifier = Modifier.fillMaxWidth(),
       backgroundColor = SoftPastelCell,
@@ -543,10 +466,10 @@ fun AnalyticsScreen(
           contentAlignment = Alignment.Center
         ) {
           Icon(
-            imageVector = Icons.Default.Psychology,
+            imageVector = Icons.Default.Lightbulb,
             contentDescription = null,
             tint = PrimaryBlue,
-            modifier = Modifier.size(26.dp)
+            modifier = Modifier.size(24.dp)
           )
         }
 
@@ -559,7 +482,7 @@ fun AnalyticsScreen(
               .padding(horizontal = 8.dp, vertical = 2.dp)
           ) {
             Text(
-              text = "COACH VIBE AI",
+              text = "TIPS KONSISTENSI",
               style = MaterialTheme.typography.labelSmall,
               color = Color.White,
               fontWeight = FontWeight.Bold
@@ -569,27 +492,27 @@ fun AnalyticsScreen(
           Spacer(modifier = Modifier.height(6.dp))
 
           Text(
-            text = "\"You crush habits 3x better before noon. Lock that morning momentum in tomorrow!\"",
-            style = MaterialTheme.typography.headlineSmall.copy(fontSize = 15.sp),
+            text = "\"Kunci sukses kebiasaan adalah memulai dari langkah kecil yang konsisten setiap hari, bukan lompatan besar yang cepat lelah.\"",
+            style = MaterialTheme.typography.headlineSmall.copy(fontSize = 14.sp),
             color = CharcoalInk,
-            lineHeight = 22.sp,
+            lineHeight = 20.sp,
             fontWeight = FontWeight.Bold
           )
         }
       }
     }
 
-    // 6. Primary Action ("Share Vibe Recap")
+    // 6. Primary Action ("Bagikan Rekap")
     val shareBgColor by animateColorAsState(
       targetValue = if (isSharedRecap) DeepPrimary else PrimaryBlue,
       label = "shareColor"
     )
 
     VibeButton(
-      text = if (isSharedRecap) "Copied to Clipboard! 🎉" else "Share Vibe Recap",
+      text = if (isSharedRecap) "Disalin ke Clipboard! 🎉" else "Bagikan Rekap Habit",
       onClick = {
         isSharedRecap = true
-        Toast.makeText(context, "Vibe Recap copied to clipboard! 🌟", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Rekap berhasil disalin! 🌟", Toast.LENGTH_SHORT).show()
         coroutineScope.launch {
           delay(2000)
           isSharedRecap = false
@@ -628,13 +551,13 @@ fun AnalyticsScreen(
           Text(trophy.description, style = MaterialTheme.typography.bodyMedium, color = InkSubtle)
           if (trophy.isUnlocked) {
             VibePillBadge(
-              text = "UNLOCKED 🏆",
+              text = "TERBUKA 🏆",
               backgroundColor = PrimaryBlue,
               textColor = Color.White
             )
           } else {
             trophy.progressText?.let {
-              Text("Progress: $it", style = MaterialTheme.typography.labelMedium, color = CharcoalInk)
+              Text("Progres: $it", style = MaterialTheme.typography.labelMedium, color = CharcoalInk)
             }
           }
         }
@@ -644,18 +567,18 @@ fun AnalyticsScreen(
           onClick = { selectedTrophy = null },
           colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)
         ) {
-          Text("Nice!")
+          Text("Mantap!")
         }
       }
     )
   }
 
-  // View All 16 Trophies Dialog
+  // View All Trophies Dialog
   if (showAllTrophiesDialog) {
     AlertDialog(
       onDismissRequest = { showAllTrophiesDialog = false },
       title = {
-        Text("Trophy Vault (16 Total)", fontWeight = FontWeight.Bold, color = CharcoalInk)
+        Text("Daftar Pencapaian", fontWeight = FontWeight.Bold, color = CharcoalInk)
       },
       text = {
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -688,7 +611,7 @@ fun AnalyticsScreen(
           onClick = { showAllTrophiesDialog = false },
           colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)
         ) {
-          Text("Done")
+          Text("Selesai")
         }
       }
     )
@@ -759,7 +682,6 @@ private fun CategoryMasteryBar(
       )
     }
 
-    // Bar container
     Box(
       modifier = Modifier
         .fillMaxWidth()
@@ -795,7 +717,6 @@ private fun TrophyCard(
   ) {
     Box(modifier = Modifier.padding(12.dp)) {
       Column {
-        // Icon Circle
         Box(
           modifier = Modifier
             .size(46.dp)
@@ -853,7 +774,6 @@ private fun TrophyCard(
         }
       }
 
-      // Top Right Badge (UNLOCKED / 70%)
       Box(
         modifier = Modifier
           .align(Alignment.TopEnd)
