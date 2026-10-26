@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material.icons.filled.Edit
@@ -34,7 +35,6 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.SelfImprovement
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Shield
-import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -384,7 +384,7 @@ fun ProfileScreen(
               contentAlignment = Alignment.Center
             ) {
               Icon(
-                Icons.Default.VolumeUp,
+                Icons.AutoMirrored.Filled.VolumeUp,
                 contentDescription = null,
                 tint = if (profile.soundHapticsEnabled) Color(0xFF166534) else InkSubtle,
                 modifier = Modifier.size(20.dp)
