@@ -26,6 +26,14 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept Android SDK Licenses & Platform
+        run: |
+          yes | sdkmanager --licenses || true
+          echo "y" | sdkmanager "platforms;android-36" || true
+
       - name: Prepare build environment
         run: |
           chmod +x gradlew
@@ -39,7 +47,7 @@ jobs:
           fi
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace
+        run: ./gradlew assembleDebug --stacktrace --no-daemon
 
       - name: Upload Debug APK Artifact
         uses: actions/upload-artifact@v4
