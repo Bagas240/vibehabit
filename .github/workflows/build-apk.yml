@@ -26,13 +26,16 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Accept Android SDK Licenses & Platform
+      - name: Accept Android SDK Licenses
         run: |
-          yes | sdkmanager --licenses || true
-          echo "y" | sdkmanager "platforms;android-36" || true
+          # Locate sdkmanager in GitHub Actions runner and accept licenses
+          SDK_MANAGER=$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f | head -n 1)
+          if [ -n "$SDK_MANAGER" ]; then
+            echo "Found sdkmanager at: $SDK_MANAGER"
+            yes | "$SDK_MANAGER" --licenses || true
+          else
+            echo "sdkmanager not found in $ANDROID_HOME/cmdline-tools"
+          fi
 
       - name: Prepare build environment
         run: |
