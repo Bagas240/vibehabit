@@ -219,4 +219,9 @@ class VibeHabitViewModel(
     repository.resetAllData()
     _currentScreen.value = AppDestination.Onboarding
   }
+
+  override fun onCleared() {
+    super.onCleared()
+    feedbackHelper.release()
+  }
 }

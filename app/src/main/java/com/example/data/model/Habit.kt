@@ -62,7 +62,7 @@ data class UserProfile(
   val titleBadge: String = "New Starter",
   val bio: String = "Building atomic habits one day at a time",
   val level: Int = 1,
-  val avatarUrl: String = "https://lh3.googleusercontent.com/aida-public/AB6AXuDhcHUiuxI958oEC27g3WAVrrQbyiLrPAjHpTA6PsaNC9M9r0V8CWJLgc7tHm8lA2hOx0vVHVgOdMbJ9j8mLzof_P__l8j5B-Zs14L34vA_U-dAiwoTH7lA5AKpKD2TfAV_iQr8orO8P1A8BF2z0GVofr0tsRfc_NVoEm6GrAOYDgwV8jyakpg_-eILg_mTIzvoHA4f-nmod9p6N30N8R1x5LtcWR1Nasi4Ib6BQqd3khkUPHU6oAuApw",
+  val avatarUrl: String = "",
   val habitsCrushed: Int = 0,
   val focusHoursLogged: Int = 0,
   val longestStreakDays: Int = 1,

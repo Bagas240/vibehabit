@@ -11,7 +11,7 @@ android {
   compileSdk = 36
 
   defaultConfig {
-    applicationId = "com.aistudio.vibehabit.kxrwzp"
+    applicationId = "com.vibehabit.app.kxrwzp"
     minSdk = 24
     targetSdk = 36
     versionCode = 1
@@ -68,12 +68,9 @@ android {
   }
 }
 
-// Configure the Secrets Gradle Plugin to use .env and .env.example files
-// to match the convention used in Web projects.
 secrets {
   propertiesFileName = ".env"
   defaultPropertiesFileName = ".env.example"
-  ignoreList.add("FIREBASE_APPCHECK_DEBUG_TOKEN")
 }
 
 // googleServices { missingGoogleServicesStrategy = MissingGoogleServicesStrategy.WARN }

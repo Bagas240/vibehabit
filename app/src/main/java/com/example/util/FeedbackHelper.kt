@@ -9,10 +9,20 @@ import android.os.Vibrator
 import android.os.VibratorManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+/**
+ * Optimized feedback helper for tactile haptic vibrations and subtle audio cues.
+ * Uses a single supervised CoroutineScope and lazily loaded system services
+ * to conserve RAM, prevent leaks, and minimize CPU wake locks.
+ */
 class FeedbackHelper(private val context: Context) {
+
+  private val helperJob = SupervisorJob()
+  private val helperScope = CoroutineScope(Dispatchers.Default + helperJob)
 
   private val vibrator: Vibrator? by lazy {
     try {
@@ -30,7 +40,7 @@ class FeedbackHelper(private val context: Context) {
 
   private val toneGenerator: ToneGenerator? by lazy {
     try {
-      ToneGenerator(AudioManager.STREAM_NOTIFICATION, 85)
+      ToneGenerator(AudioManager.STREAM_NOTIFICATION, 80)
     } catch (_: Exception) {
       null
     }
@@ -53,15 +63,17 @@ class FeedbackHelper(private val context: Context) {
     // Multi-pulse celebration vibration
     vibrate(longArrayOf(0, 60, 50, 70, 50, 90), intArrayOf(0, 200, 0, 230, 0, 255))
 
-    // Celebratory ascending chime
-    CoroutineScope(Dispatchers.Default).launch {
+    // Celebratory ascending chime using managed coroutine scope
+    helperScope.launch {
       try {
         toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP, 80)
         delay(90)
         toneGenerator?.startTone(ToneGenerator.TONE_PROP_ACK, 120)
         delay(130)
         toneGenerator?.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 160)
-      } catch (_: Exception) {}
+      } catch (_: Exception) {
+        // Ignored on hardware without audio feedback
+      }
     }
   }
 
@@ -79,7 +91,9 @@ class FeedbackHelper(private val context: Context) {
         @Suppress("DEPRECATION")
         vibrator?.vibrate(durationMs)
       }
-    } catch (_: Exception) {}
+    } catch (_: Exception) {
+      // Ignored if vibrator permission or hardware is unavailable
+    }
   }
 
   private fun vibrate(timings: LongArray, amplitudes: IntArray) {
@@ -90,12 +104,25 @@ class FeedbackHelper(private val context: Context) {
         @Suppress("DEPRECATION")
         vibrator?.vibrate(timings, -1)
       }
-    } catch (_: Exception) {}
+    } catch (_: Exception) {
+      // Ignored if vibrator permission or hardware is unavailable
+    }
   }
 
   private fun playTone(toneType: Int, durationMs: Int) {
     try {
       toneGenerator?.startTone(toneType, durationMs)
-    } catch (_: Exception) {}
+    } catch (_: Exception) {
+      // Ignored if audio stream is unavailable
+    }
+  }
+
+  fun release() {
+    try {
+      helperScope.cancel()
+      toneGenerator?.release()
+    } catch (_: Exception) {
+      // Ignored on teardown
+    }
   }
 }

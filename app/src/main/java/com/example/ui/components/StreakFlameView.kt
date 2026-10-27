@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -44,6 +43,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -85,6 +85,7 @@ object FlameTheme {
 /**
  * Authentic Cartoon Campfire Flame Composable with realistic multi-tongue fire silhouette,
  * floating dancing ember spark, dynamic streak colors, and bold centered day counter.
+ * Optimized with Path reuse and pre-allocated Strokes to prevent GC thrashing and save battery.
  */
 @Composable
 fun StreakFlameView(
@@ -120,9 +121,11 @@ fun StreakFlameView(
     }
   }
 
+  val isFlameAlive = isActive && streakDays > 0
+
   // Organic flame flicker and sway
   val infiniteTransition = rememberInfiniteTransition(label = "flameAlive")
-  val breatheScale by infiniteTransition.animateFloat(
+  val rawBreatheScale by infiniteTransition.animateFloat(
     initialValue = 0.97f,
     targetValue = 1.04f,
     animationSpec = infiniteRepeatable(
@@ -131,7 +134,7 @@ fun StreakFlameView(
     ),
     label = "breatheScale"
   )
-  val tipSway by infiniteTransition.animateFloat(
+  val rawTipSway by infiniteTransition.animateFloat(
     initialValue = -3.5f,
     targetValue = 3.5f,
     animationSpec = infiniteRepeatable(
@@ -140,7 +143,7 @@ fun StreakFlameView(
     ),
     label = "tipSway"
   )
-  val emberFloat by infiniteTransition.animateFloat(
+  val rawEmberFloat by infiniteTransition.animateFloat(
     initialValue = -2.5f,
     targetValue = 3f,
     animationSpec = infiniteRepeatable(
@@ -150,7 +153,34 @@ fun StreakFlameView(
     label = "emberFloat"
   )
 
+  // Conserve battery when flame is dormant
+  val breatheScale = if (isFlameAlive) rawBreatheScale else 1f
+  val tipSway = if (isFlameAlive) rawTipSway else 0f
+  val emberFloat = if (isFlameAlive) rawEmberFloat else 0f
+
   val totalScale = ignitionScale.value * (if (isActive) breatheScale else 1f)
+
+  // Reusable Paths to avoid per-frame GC allocations
+  val flamePath = remember { Path() }
+  val midPath = remember { Path() }
+  val corePath = remember { Path() }
+  val emberPath = remember { Path() }
+
+  // Pre-cached Stroke styles
+  val density = LocalDensity.current
+  val outerStroke = remember(density) {
+    Stroke(width = with(density) { 2.4.dp.toPx() }, cap = StrokeCap.Round, join = StrokeJoin.Round)
+  }
+  val midStroke = remember(density) {
+    Stroke(width = with(density) { 1.2.dp.toPx() }, cap = StrokeCap.Round, join = StrokeJoin.Round)
+  }
+  val emberStroke = remember(density) {
+    Stroke(width = with(density) { 1.dp.toPx() })
+  }
+  val sparkRadiusPx = remember(density) { with(density) { 3.5.dp.toPx() } }
+  val emberOffset1 = remember(density) { with(density) { 4.dp.toPx() } }
+  val emberOffset2 = remember(density) { with(density) { 3.dp.toPx() } }
+  val emberOffset3 = remember(density) { with(density) { 7.dp.toPx() } }
 
   Box(
     modifier = modifier
@@ -186,7 +216,7 @@ fun StreakFlameView(
           val sy = (h * 0.60f) + (dist * sin(angle)).toFloat()
           drawCircle(
             color = animatedTopColor.copy(alpha = sparkAlpha.value),
-            radius = 3.5.dp.toPx(),
+            radius = sparkRadiusPx,
             center = Offset(sx, sy)
           )
         }
@@ -195,7 +225,7 @@ fun StreakFlameView(
       // ----------------------------------------------------
       // A. Outer Realistic Flame Silhouette (3 Tongues of Fire)
       // ----------------------------------------------------
-      val flamePath = Path()
+      flamePath.reset()
       val bottomX = cx
       val bottomY = h * 0.95f
       val mainTipX = cx + (if (isActive) tipSway * 1.5f else 0f)
@@ -271,13 +301,13 @@ fun StreakFlameView(
       drawPath(
         path = flamePath,
         color = CharcoalInk,
-        style = Stroke(width = 2.4.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+        style = outerStroke
       )
 
       // ----------------------------------------------------
       // B. Middle Secondary Fiery Tongue Layer
       // ----------------------------------------------------
-      val midPath = Path()
+      midPath.reset()
       val midBottomY = h * 0.91f
       val midTipX = cx + (if (isActive) tipSway * 1.0f else 0f)
 
@@ -292,18 +322,18 @@ fun StreakFlameView(
       midPath.cubicTo(w * 0.58f, midBottomY, cx + w * 0.06f, midBottomY, cx, midBottomY)
       midPath.close()
 
-      val midFillColor = if (isActive && streakDays > 0) Color(0xFFFFD54F).copy(alpha = 0.85f) else Color(0xFFB0B5BC).copy(alpha = 0.6f)
+      val midFillColor = if (isFlameAlive) Color(0xFFFFD54F).copy(alpha = 0.85f) else Color(0xFFB0B5BC).copy(alpha = 0.6f)
       drawPath(path = midPath, color = midFillColor)
       drawPath(
         path = midPath,
         color = CharcoalInk.copy(alpha = 0.3f),
-        style = Stroke(width = 1.2.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+        style = midStroke
       )
 
       // ----------------------------------------------------
       // C. Inner Fiery White-Hot Core (Bottom Heart of Flame)
       // ----------------------------------------------------
-      val corePath = Path()
+      corePath.reset()
       val coreTipX = cx + (if (isActive) tipSway * 0.5f else 0f)
       corePath.moveTo(cx, h * 0.88f)
       corePath.cubicTo(w * 0.36f, h * 0.88f, w * 0.30f, h * 0.78f, w * 0.30f, h * 0.68f)
@@ -312,23 +342,23 @@ fun StreakFlameView(
       corePath.cubicTo(w * 0.70f, h * 0.78f, w * 0.64f, h * 0.88f, cx, h * 0.88f)
       corePath.close()
 
-      val coreColor = if (isActive && streakDays > 0) Color.White.copy(alpha = 0.88f) else Color(0xFFE2E4E8).copy(alpha = 0.75f)
+      val coreColor = if (isFlameAlive) Color.White.copy(alpha = 0.88f) else Color(0xFFE2E4E8).copy(alpha = 0.75f)
       drawPath(path = corePath, color = coreColor)
 
       // ----------------------------------------------------
       // D. Detached Floating Dancing Ember Spark (Above Flame Tip)
       // ----------------------------------------------------
-      if (isActive && streakDays > 0) {
+      if (isFlameAlive) {
+        emberPath.reset()
         val emberX = cx - w * 0.08f + tipSway
         val emberY = h * 0.03f + emberFloat
-        val emberPath = Path().apply {
-          moveTo(emberX, emberY)
-          cubicTo(emberX + 4.dp.toPx(), emberY + 3.dp.toPx(), emberX + 3.dp.toPx(), emberY + 7.dp.toPx(), emberX, emberY + 7.dp.toPx())
-          cubicTo(emberX - 3.dp.toPx(), emberY + 7.dp.toPx(), emberX - 4.dp.toPx(), emberY + 3.dp.toPx(), emberX, emberY)
-          close()
-        }
+        emberPath.moveTo(emberX, emberY)
+        emberPath.cubicTo(emberX + emberOffset1, emberY + emberOffset2, emberX + emberOffset2, emberY + emberOffset3, emberX, emberY + emberOffset3)
+        emberPath.cubicTo(emberX - emberOffset2, emberY + emberOffset3, emberX - emberOffset1, emberY + emberOffset2, emberX, emberY)
+        emberPath.close()
+
         drawPath(path = emberPath, color = animatedTopColor)
-        drawPath(path = emberPath, color = CharcoalInk, style = Stroke(width = 1.dp.toPx()))
+        drawPath(path = emberPath, color = CharcoalInk, style = emberStroke)
       }
     }
 
@@ -339,13 +369,13 @@ fun StreakFlameView(
       modifier = Modifier.padding(top = (flameSize * 0.30f))
     ) {
       Text(
-        text = if (isActive && streakDays > 0) "$streakDays" else "0",
+        text = if (isFlameAlive) "$streakDays" else "0",
         fontSize = (flameSize.value * 0.30f).sp,
         fontWeight = FontWeight.Black,
         color = CharcoalInk
       )
       Text(
-        text = if (isActive && streakDays > 0) "DAY" else "DEAD",
+        text = if (isFlameAlive) "DAY" else "DEAD",
         fontSize = (flameSize.value * 0.10f).sp,
         fontWeight = FontWeight.Black,
         color = CharcoalInk.copy(alpha = 0.85f),

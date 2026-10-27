@@ -59,7 +59,7 @@ object AppSecurityIntegrity {
    */
   fun isPackageIntegrityValid(context: Context): Boolean {
     val currentPkg = context.packageName
-    return currentPkg.startsWith("com.aistudio.") || currentPkg == "com.example"
+    return currentPkg.startsWith("com.vibehabit.") || currentPkg == "com.example"
   }
 
   /**
